@@ -14,7 +14,7 @@ from xtuner.dataset.huggingface import build_origin_dataset
 import copy
 
 from vlm.datasets.evaluation.base_eval_dataset import BaseEvalDataset
-from projects.llava_sam2.datasets.encode_fn import video_lisa_encode_multi_conv_fn
+from projects.sa2va.datasets.encode_fn import video_lisa_encode_multi_conv_fn
 import json
 import torchvision.transforms as T
 from torchvision.transforms.functional import InterpolationMode
@@ -429,7 +429,7 @@ if __name__ == '__main__':
         padding_side='right'
     )
 
-    from projects.llava_sam2.models.preprocess.image_resize import DirectResize
+    from projects.sa2va.models.preprocess.image_resize import DirectResize
     extra_image_processor = dict(
         type=DirectResize,
         target_length=1024,

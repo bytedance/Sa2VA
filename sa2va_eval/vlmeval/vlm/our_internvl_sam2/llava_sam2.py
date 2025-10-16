@@ -4,7 +4,7 @@ from xtuner.model.utils import get_peft_model_state_dict
 from xtuner.utils import PROMPT_TEMPLATE
 from xtuner.tools.utils import get_stop_criteria
 from transformers import GenerationConfig
-from projects.llava_sam2.models.preprocess.image_resize import DirectResize
+from projects.sa2va.models.preprocess.image_resize import DirectResize
 
 import torchvision.transforms as T
 from torchvision.transforms.functional import InterpolationMode

@@ -73,11 +73,11 @@ def main():
     print(model)
 
     # build the hf format model
-    from projects.llava_sam2.hf.models.configuration_sa2va_chat import Sa2VAChatConfig
-    from projects.llava_sam2.hf.models.modeling_sa2va_chat import Sa2VAChatModel
+    from projects.sa2va.hf.models.configuration_sa2va_chat import Sa2VAChatConfig
+    from projects.sa2va.hf.models.modeling_sa2va_chat import Sa2VAChatModel
 
-    from projects.llava_sam2.hf.models_qwen.configuration_sa2va_chat import Sa2VAChatConfigQwen
-    from projects.llava_sam2.hf.models_qwen.modeling_sa2va_qwen import Sa2VAChatModelQwen
+    from projects.sa2va.hf.models_qwen.configuration_sa2va_chat import Sa2VAChatConfigQwen
+    from projects.sa2va.hf.models_qwen.modeling_sa2va_qwen import Sa2VAChatModelQwen
 
     arch_type = cfg.model.get('arch_type', 'internvl')
     print("arch_type:", arch_type)

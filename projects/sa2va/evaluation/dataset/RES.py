@@ -3,7 +3,7 @@ import numpy as np
 import torch
 from PIL import Image
 from pycocotools import mask as _mask
-from projects.llava_sam2.evaluation.utils import REFER, Summary, AverageMeter, intersectionAndUnionGPU, master_only, G_REFER
+from projects.sa2va.evaluation.utils import REFER, Summary, AverageMeter, intersectionAndUnionGPU, master_only, G_REFER
 
 DATASETS_ATTRIBUTES = {
     'refcoco': {'splitBy': "unc", 'dataset_name': 'refcoco'},

@@ -30,7 +30,7 @@ class SAM2TrainRunner(BaseModule):
             hydra_overrides_extra = []
         hydra_overrides = [
             ## Extension: LLM prompt
-            "++model._target_=projects.llava_sam2.models.extension.SAM2Base",
+            "++model._target_=projects.sa2va.models.extension.SAM2Base",
         ]
 
         if apply_postprocessing:
