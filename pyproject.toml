@@ -25,7 +25,6 @@ dependencies = [
     "portalocker",
     "moviepy==1.0.3",
     "datetime",
-    "sam2",
     "qwen_vl_utils",
 ]
 

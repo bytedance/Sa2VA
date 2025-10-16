@@ -130,11 +130,10 @@ We provide two ways for installation. Using `uv` is recommended for a faster and
 
 First, install `uv`:
 ```bash
-pip install uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 Then, create a virtual environment and sync the dependencies:
 ```bash
-uv venv
 uv sync
 ```
 
