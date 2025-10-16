@@ -114,9 +114,15 @@ data
 *.pkl
 *.pkl.json
 *.log.json
+work_dirs
 work_dirs/
+work_dirs_run
+work_dirs_run/
+pretrained
 pretrained/
 temp_*/
+OUTPUT/
+DEV_README.md
 
 # Pytorch
 *.pth
@@ -126,3 +132,12 @@ temp_*/
 # srun
 *.out
 batchscript-*
+
+
+# local tools
+local_tools/
+outputs/
+
+logs/
+config.json
+quick_test_output/

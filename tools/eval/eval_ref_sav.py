@@ -30,7 +30,6 @@ def eval_queue(q, rank, out_dict):
         vid_len, h, w = len(vid['frames']), vid['height'], vid['width']
         gt_masks = np.zeros((vid_len, h, w), dtype=np.uint8)
         pred_masks = np.zeros((vid_len, h, w), dtype=np.uint8)
-        foreground_masks = np.zeros((vid_len, h, w), dtype=np.uint8)
 
         anno_ids = vid['expressions'][exp]['anno_id']
 
@@ -40,40 +39,33 @@ def eval_queue(q, rank, out_dict):
                 mask_rle = mask_dict[str(anno_id)][frame_idx]
                 if mask_rle:
                     gt_masks[frame_idx] += cocomask.decode(mask_rle)
-            mask_fore_rle = mask_dict_foreground[vid_name]["masks_rle"][frame_idx]
-            mask_fore = cocomask.decode(mask_fore_rle)
-            mask_fore = mask_fore.sum(axis=2).astype(np.uint8) if mask_fore.ndim == 3 else mask_fore.astype(np.uint8)
-            foreground_masks[frame_idx] = mask_fore
+
 
             pred_mask = cocomask.decode(pred['prediction_masks'][frame_idx])
             pred_masks[frame_idx] += pred_mask
         j = db_eval_iou(gt_masks, pred_masks).mean()
         f = db_eval_boundary(gt_masks, pred_masks).mean()
         a = get_r2vos_accuracy(gt_masks, pred_masks).mean()
-        r = get_r2vos_robustness(gt_masks, pred_masks, foreground_masks).mean()
 
-        out_dict[exp_name] = [j, f, a, r]
+        out_dict[exp_name] = [j, f, a]
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("pred_path", type=str, )
-    parser.add_argument("--exp_path", type=str, default="data/video_datas/revos/meta_expressions_valid_.json")
-    parser.add_argument("--mask_path", type=str, default="data/video_datas/revos/mask_dict.json")
-    parser.add_argument("--foreground_mask_path", type=str, default="data/video_datas/revos/mask_dict_foreground.json")
-    parser.add_argument("--save_json_name", type=str, default="revos_valid.json")
-    parser.add_argument("--save_csv_name", type=str, default="revos_valid.csv")
+    parser.add_argument("--exp_path", type=str, default="data/ref_sav_eval/meta_expressions_valid.json")
+    parser.add_argument("--mask_path", type=str, default="data/ref_sav_eval/mask_dict.json")
+    parser.add_argument("--save_json_name", type=str, default="ref_sav_valid.json")
+    parser.add_argument("--save_csv_name", type=str, default="ref_sav_valid.csv")
     args = parser.parse_args()
     queue                = mp.Queue()
     exp_dict             = json.load(open(args.exp_path))['videos']
     mask_dict            = json.load(open(args.mask_path))
-    mask_dict_foreground = json.load(open(args.foreground_mask_path))
-    #mask_dict_foreground=mask_dict
+
     mask_pred = json.load(open(args.pred_path))
 
     shared_exp_dict             = mp.Manager().dict(exp_dict)
     shared_mask_dict            = mp.Manager().dict(mask_dict)
-    shared_mask_dict_foreground = mp.Manager().dict(mask_dict_foreground)
     output_dict                 = mp.Manager().dict()
 
     mask_pred_dict  = mp.Manager().dict(mask_pred)
@@ -102,7 +94,7 @@ if __name__ == '__main__':
     output_csv_path  = osp.join(osp.dirname(args.pred_path), args.save_csv_name)
 
     data_list = []
-    for videxp, (j, f, a, r) in output_dict.items():
+    for videxp, (j, f, a) in output_dict.items():
         vid_name, exp = videxp.rsplit('_', 1)
         data = {}
 
@@ -114,53 +106,45 @@ if __name__ == '__main__':
         data['F']          = round(100 * f, 2)
         data['JF']         = round(100 * (j + f) / 2, 2)
         data['A']          = round(100 * a, 2)
-        data['R']          = round(100 * r, 2)
         data['type_id']    = exp_dict[vid_name]['expressions'][exp]['type_id']
 
         data_list.append(data)
 
-    is_referring = lambda x: x['type_id'] == 0
-    is_reason    = lambda x: x['type_id'] == 1
-    is_nan       = lambda x: x['type_id'] == 2
+    is_long = lambda x: x['type_id'] == 0
+    is_short    = lambda x: x['type_id'] == 1
 
-    j_referring  = np.array([d['J'] for d in data_list if is_referring(d)]).mean()
-    f_referring  = np.array([d['F'] for d in data_list if is_referring(d)]).mean()
-    a_referring  = np.array([d['A'] for d in data_list if is_referring(d)]).mean()
-    r_referring  = np.array([d['R'] for d in data_list if is_referring(d)]).mean()
+    j_referring  = np.array([d['J'] for d in data_list if is_long(d)]).mean()
+    f_referring  = np.array([d['F'] for d in data_list if is_long(d)]).mean()
+    a_referring  = np.array([d['A'] for d in data_list if is_long(d)]).mean()
     jf_referring = (j_referring + f_referring) / 2
 
-    j_reason  = np.array([d['J'] for d in data_list if is_reason(d)]).mean()
-    f_reason  = np.array([d['F'] for d in data_list if is_reason(d)]).mean()
-    a_reason  = np.array([d['A'] for d in data_list if is_reason(d)]).mean()
-    r_reason  = np.array([d['R'] for d in data_list if is_reason(d)]).mean()
+    j_reason  = np.array([d['J'] for d in data_list if is_short(d)]).mean()
+    f_reason  = np.array([d['F'] for d in data_list if is_short(d)]).mean()
+    a_reason  = np.array([d['A'] for d in data_list if is_short(d)]).mean()
     jf_reason = (j_reason + f_reason) / 2
 
     j_referring_reason  = (j_referring + j_reason) / 2
     f_referring_reason  = (f_referring + f_reason) / 2
     a_referring_reason  = (a_referring + a_reason) / 2
-    r_referring_reason  = (r_referring + r_reason) / 2
     jf_referring_reason = (jf_referring + jf_reason) / 2
 
     results = {
-        "referring": {
+        "long": {
             "J" : j_referring,
             "F" : f_referring,
             "A" : a_referring,
-            "R" : r_referring,
             "JF": jf_referring
         },
-        "reason": {
+        "short": {
             "J" : j_reason,
             "F" : f_reason,
             "A" : a_reason,
-            "R" : r_reason,
             "JF": jf_reason
         },
         "overall": {
             "J" : j_referring_reason,
             "F" : f_referring_reason,
             "A" : a_referring_reason,
-            "R" : r_referring_reason,
             "JF": jf_referring_reason
         }
     }
