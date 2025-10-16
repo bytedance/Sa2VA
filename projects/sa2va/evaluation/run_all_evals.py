@@ -20,28 +20,24 @@ def main():
     parser.add_argument('--gpus', type=str, default='8', help='Number of GPUs to use for distributed testing.')
     args = parser.parse_args()
 
-    base_path = "./projects/llava_sam2/evaluation"
-    dist_test_script = "./projects/llava_sam2/evaluation/dist_test.sh"
+    base_path = "./projects/sa2va/evaluation"
+    dist_test_script = "./projects/sa2va/evaluation/dist_test.sh"
 
     # --- Evaluation Commands ---
     eval_configs = {
         "RefCOCO": {
-            "script": os.path.join(base_path, "refcoco_eval.py"),
+            "script": os.path.join(base_path, "sa2va_eval_refcoco.py"),
             "datasets": ["refcoco", "refcoco_plus", "refcocog"],
             "split": "test"
         },
         "GCG": {
-            "script": os.path.join(base_path, "gcg_eval.py"),
+            "script": os.path.join(base_path, "sa2va_eval_gcg.py"),
             "split": "val",
             "metrics_script": os.path.join(base_path, "metrics_gcg.py"),
         },
-        "RegionCap": {
-            "script": os.path.join(base_path, "region_cap_refcocog_eval.py"),
-            "metrics_script": os.path.join(base_path, "metrics_region_cap.py"),
-        },
         "RefVOS": {
-            "script": os.path.join(base_path, "ref_vos_eval.py"),
-            "datasets": ["DAVIS", "MEVIS_U", "REF_SAV", "REVOS"],
+            "script": os.path.join(base_path, "sa2va_eval_ref_vos.py"),
+            "datasets": ["DAVIS", "MEVIS_U"],
         }
     }
 
