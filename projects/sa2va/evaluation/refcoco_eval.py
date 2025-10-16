@@ -30,10 +30,6 @@ def parse_args():
         choices=['none', 'pytorch', 'slurm', 'mpi'],
         default='none',
         help='job launcher')
-    parser.add_argument(
-        '--vis',
-        action='store_true',
-        help='whether to visualize the results')
     
     parser.add_argument('--local_rank', '--local-rank', type=int, default=0)
     parser.add_argument('--deepspeed', type=str, default=None) # dummy
@@ -192,51 +188,6 @@ def main():
 
         prediction.update({'prediction_masks': pred_masks})
         results.append(prediction)
-
-        if args.vis:
-            import PIL
-            import json
-            from projects.llava_sam2.evaluation.utils.visualization import visualize_n_masks, visualize_mask
-            img_id = img_metas['img_id']
-            image_path = img_metas['image_path']
-            image_name = os.path.basename(image_path)
-            image_name = os.path.splitext(image_name)[0]
-            img = PIL.Image.open(image_path).convert('RGB')
-            for i, pred_n_mask in enumerate(pred_n_masks):
-                if pred_n_mask is None:
-                    continue
-                
-                mask_name = f'{image_name}_{i}.png'
-                mask_path = os.path.join('./work_dirs/vis', model_name, args.dataset, mask_name)
-                if not os.path.exists(mask_path):
-                    os.makedirs(os.path.dirname(mask_path), exist_ok=True)
-
-                # visualize
-                pred_n_mask = [
-                    PIL.Image.fromarray(pred_1_mask.astype(np.float32) * 255).convert('L')
-                    for pred_1_mask in pred_n_mask
-                ]
-                # pred_mask_vis = visualize_n_masks(img, pred_n_mask)
-                # pred_mask_vis.save(mask_path)
-                pred_mask_vis = [visualize_mask(img, pred_mask) for pred_mask in pred_n_mask]
-                for idx, pred_mask_vis_cur in enumerate(pred_mask_vis):
-                    pred_mask_vis_cur.save(mask_path.replace('.png', '_{:06d}.png'.format(idx)))
-
-                text_output = pred_texts[i]
-                text_input = texts[i]
-                text_output = text_output.replace('<|im_end|>', '')
-                text_json = {
-                    'question': text_input,
-                    'answer': text_output,
-                }
-                json_name = f'{image_name}_{i}.json'
-                json_path = os.path.join('./work_dirs/vis', model_name, args.dataset, json_name)
-                json.dump(
-                    text_json,
-                    open(json_path, 'w'),
-                    indent=4,
-                )
-
     tmpdir = './dist_test_temp_res_' + args.dataset + args.split + args.model_path.replace('/', '').replace('.', '')
     results = collect_results_cpu(results, len(dataset), tmpdir=tmpdir)
     if get_rank() == 0:
