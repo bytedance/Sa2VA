@@ -3,6 +3,12 @@
 # Email: clyanhh@gmail.com
 # Copyright (c) 2024
 ###########################################################################
+
+###########################################################################
+# Modified to support ref_sav dataset by: HarborYuan
+# Email: haoboyuan@ucmerced.edu
+# Copyright subject to the LICENSE of the Sa2VA repo
+###########################################################################
 import warnings
 
 warnings.filterwarnings("ignore", category=RuntimeWarning)

@@ -46,7 +46,7 @@ We provide the following models:
 
 We provide a script that implements interactive chat using gradio, which requires installing `gradio`. You can try it to build a local chat interface quickly.
 ```shell
-PYTHONPATH=. python projects/llava_sam2/gradio/app.py ByteDance/Sa2VA-4B
+PYTHONPATH=. python projects/sa2va/gradio/app.py ByteDance/Sa2VA-4B
 ```
 
 ## 🚀 Quick Start
@@ -136,30 +136,11 @@ Then, create a virtual environment and sync the dependencies:
 ```bash
 uv venv
 uv sync
-source .venv/bin/activate
 ```
 
 **Option 2: Using `conda` and `pip`**
 
-1. Please install the python and pytorch first:
-```bash
-conda create -n vlm python=3.10
-conda activate vlm
-conda install pytorch==2.3.1 torchvision==0.18.1 pytorch-cuda=12.1 cuda -c pytorch  -c "nvidia/label/cuda-12.1.0" -c "nvidia/label/cuda-12.1.1"
-```
-
-2. Install mmcv, we use 2.1.0 as default version:
-```bash
-pip install mmcv==2.1.0 -f https://download.openmmlab.com/mmcv/dist/cu121/torch2.3/index.html
-```
-
-3. Install other dependencies:
-```bash
-pip install -r requirements.txt
-```
-</details>
-
-Please make sure using the correct versions of transformers and peft.
+Deprecated.
 
 <summary>Pretrained Model Preparation</summary>
 
@@ -176,7 +157,7 @@ pretrained/
 ├── InternVL2_5-1B
 ├── InternVL2_5-4B
 ```
-
+</details>
 
 <details open>
 <summary>Data Preparation</summary>
@@ -195,9 +176,9 @@ data/
 |   ├── revos
 |   ├── mevis
 |   └── davis17
-|   └── chat_univi # video-chat data
-|   └── sam_v_full # please download this from sam-2 offical repp.
-|   └── sam_v_final_v3.json
+|   └── chat_univi
+|   └── sam_v_full # [!important] please download this from sam-2 directly.
+|   └── Ref-SAV.json
 ├── ref_seg
 |   ├── refclef
 |   ├── refcoco
@@ -217,14 +198,14 @@ data/
 
 ```
 `sam_v_full` is the SA-V dataset, which is not included in the download link. You can download it from [here](https://ai.meta.com/datasets/segment-anything-video/).
-</details>
+
 
 <details open>
 <summary>Training Script</summary>
 
 Please run the following script to train using 8 GPUS, we suggest using at least 8 A100 GPUs:
 ```bash
-bash tools/dist.sh train projects/llava_sam2/configs/sa2va_4b.py 8
+bash tools/dist.sh train projects/sa2va/configs/sa2va_in30_8b.py 8
 ```
 </details>
 
@@ -233,7 +214,7 @@ bash tools/dist.sh train projects/llava_sam2/configs/sa2va_4b.py 8
 
 Please run the following script to convert:
 ```bash
-python projects/llava_sam2/hf/convert_to_hf.py projects/llava_sam2/configs/sa2va_4b.py --pth-model PATH_TO_PTH_MODEL --save-path PATH_TO_SAVE_FOLDER
+python tools/convert_to_hf.py projects/sa2va/configs/sa2va_in30_8b.py --pth-model PATH_TO_PTH_MODEL --save-path PATH_TO_SAVE_FOLDER
 ```
 </details>
 

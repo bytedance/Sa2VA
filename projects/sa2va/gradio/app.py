@@ -1,6 +1,7 @@
 import gradio as gr
 import sys
-from projects.llava_sam2.gradio.app_utils import\
+
+from projects.sa2va.gradio.app_utils import\
     process_markdown, show_mask_pred, description, preprocess_video,\
     show_mask_pred_video, image2video_and_save
 
