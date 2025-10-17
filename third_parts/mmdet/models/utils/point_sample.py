@@ -1,7 +1,65 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import torch
-from mmcv.ops import point_sample
 from torch import Tensor
+import torch.nn.functional as F
+
+
+def normalize(grid: Tensor) -> Tensor:
+    """Normalize input grid from [-1, 1] to [0, 1]
+
+    Args:
+        grid (torch.Tensor): The grid to be normalize, range [-1, 1].
+
+    Returns:
+        torch.Tensor: Normalized grid, range [0, 1].
+    """
+
+    return (grid + 1.0) / 2.0
+
+
+def denormalize(grid: Tensor) -> Tensor:
+    """Denormalize input grid from range [0, 1] to [-1, 1]
+
+    Args:
+        grid (torch.Tensor): The grid to be denormalize, range [0, 1].
+
+    Returns:
+        torch.Tensor: Denormalized grid, range [-1, 1].
+    """
+
+    return grid * 2.0 - 1.0
+
+
+def point_sample(input: Tensor,
+                 points: Tensor,
+                 align_corners: bool = False,
+                 **kwargs) -> Tensor:
+    """A wrapper around :func:`grid_sample` to support 3D point_coords tensors
+    Unlike :func:`torch.nn.functional.grid_sample` it assumes point_coords to
+    lie inside ``[0, 1] x [0, 1]`` square.
+
+    Args:
+        input (torch.Tensor): Feature map, shape (N, C, H, W).
+        points (torch.Tensor): Image based absolute point coordinates
+            (normalized), range [0, 1] x [0, 1], shape (N, P, 2) or
+            (N, Hgrid, Wgrid, 2).
+        align_corners (bool, optional): Whether align_corners.
+            Default: False
+
+    Returns:
+        torch.Tensor: Features of `point` on `input`, shape (N, C, P) or
+        (N, C, Hgrid, Wgrid).
+    """
+
+    add_dim = False
+    if points.dim() == 3:
+        add_dim = True
+        points = points.unsqueeze(2)
+    output = F.grid_sample(
+        input, denormalize(points), align_corners=align_corners, **kwargs)
+    if add_dim:
+        output = output.squeeze(3)
+    return output
 
 
 def get_uncertainty(mask_preds: Tensor, labels: Tensor) -> Tensor:

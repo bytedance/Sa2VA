@@ -51,8 +51,6 @@ class Sa2VAChatModelQwen(PreTrainedModel):
             self.model=model
         else:
             self.model = Qwen2_5_VLForConditionalGeneration(config)
-        
-        self.model._tied_weights_keys = None
 
         llm_hidden_size = config.text_config.hidden_size
 

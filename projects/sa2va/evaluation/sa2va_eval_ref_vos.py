@@ -152,7 +152,7 @@ if __name__ == '__main__':
         trust_remote_code=True,
     )
 
-    if 'qwen' in args.model_path:
+    if 'qwen' in args.model_path.lower():
         processor = AutoProcessor.from_pretrained(args.model_path, trust_remote_code=True)
     else:
         processor = None

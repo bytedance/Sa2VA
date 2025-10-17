@@ -1,0 +1,201 @@
+0:invalid_class_id
+1:person,child,girl,boy,woman,man,people,children,girls,boys,women,men,lady,guy,ladies,guys,clothes
+2:bicycle,bicycles,bike,bikes
+3:car,cars
+4:motorcycle,motorcycles
+5:airplane,airplanes
+6:bus,buses
+7:train,trains,locomotive,locomotives,freight train
+8:truck,trucks
+9:boat,boats
+10:traffic light
+11:fire hydrant
+12:invalid_class_id
+13:stop sign
+14:parking meter
+15:bench,benches
+16:bird,birds
+17:cat,cats,kitties,kitty
+18:dog,dogs,puppy,puppies
+19:horse,horses,foal
+20:sheep
+21:cow,cows,calf
+22:elephant,elephants
+23:bear,bears
+24:zebra,zebras
+25:giraffe,giraffes
+26:invalid_class_id
+27:backpack,backpacks
+28:umbrella,umbrellas
+29:invalid_class_id
+30:invalid_class_id
+31:handbag,handbags
+32:tie
+33:suitcase,suitcases
+34:frisbee
+35:skis
+36:snowboard
+37:sports ball
+38:kite,kites
+39:baseball bat
+40:baseball glove
+41:skateboard
+42:surfboard
+43:tennis racket
+44:bottle,bottles,water bottle
+45:invalid_class_id
+46:wine glass,wine glasses,wineglass
+47:cup,cups,water cup,water glass
+48:fork,forks
+49:knife,knives
+50:spoon,spoons
+51:bowl,bowls
+52:banana,bananas
+53:apple,apples,apple fruit
+54:sandwich,sandwiches
+55:orange fruit
+56:broccoli
+57:carrot,carrots
+58:hot dog
+59:pizza
+60:donut,donuts
+61:cake,cakes
+62:chair,chairs
+63:couch,sofa,sofas
+64:potted plant,potted plants,pottedplant,pottedplants,planter,planters
+65:bed,beds
+66:invalid_class_id
+67:dining table,dining tables,diningtable,diningtables,plate,plates,diningtable tablecloth
+68:invalid_class_id
+69:invalid_class_id
+70:toilet
+71:invalid_class_id
+72:tv
+73:laptop
+74:mouse
+75:tv remote,remote control
+76:keyboard
+77:cell phone,mobile
+78:microwave
+79:oven,ovens
+80:toaster
+81:sink,sinks
+82:refrigerator,fridge
+83:invalid_class_id
+84:book,books
+85:clock
+86:vase,vases
+87:scissor,scissors
+88:teddy bear,teddy bears
+89:hair drier
+90:toothbrush,toothbrushes
+91:invalid_class_id
+92:banner,banners
+93:blanket,blankets
+94:invalid_class_id
+95:bridge
+96:invalid_class_id
+97:invalid_class_id
+98:invalid_class_id
+99:invalid_class_id
+100:cardboard
+101:invalid_class_id
+102:invalid_class_id
+103:invalid_class_id
+104:invalid_class_id
+105:invalid_class_id
+106:invalid_class_id
+107:counter
+108:invalid_class_id
+109:curtain,curtains
+110:invalid_class_id
+111:invalid_class_id
+112:door,doors
+113:invalid_class_id
+114:invalid_class_id
+115:invalid_class_id
+116:invalid_class_id
+117:invalid_class_id
+118:wood floor
+119:flower,flowers
+120:invalid_class_id
+121:invalid_class_id
+122:fruit,fruits
+123:invalid_class_id
+124:invalid_class_id
+125:gravel
+126:invalid_class_id
+127:invalid_class_id
+128:house
+129:invalid_class_id
+130:lamp,bulb,lamps,bulbs
+131:invalid_class_id
+132:invalid_class_id
+133:mirror
+134:invalid_class_id
+135:invalid_class_id
+136:invalid_class_id
+137:invalid_class_id
+138:tennis net
+139:invalid_class_id
+140:invalid_class_id
+141:pillow,pillows
+142:invalid_class_id
+143:invalid_class_id
+144:platform
+145:playingfield,tennis court,baseball field,soccer field,tennis field
+146:invalid_class_id
+147:railroad
+148:river
+149:road
+150:invalid_class_id
+151:roof
+152:invalid_class_id
+153:invalid_class_id
+154:sand
+155:sea,sea wave,wave,waves
+156:shelf
+157:invalid_class_id
+158:invalid_class_id
+159:snow
+160:invalid_class_id
+161:stairs
+162:invalid_class_id
+163:invalid_class_id
+164:invalid_class_id
+165:invalid_class_id
+166:tent
+167:invalid_class_id
+168:towel
+169:invalid_class_id
+170:invalid_class_id
+171:brick wall
+172:invalid_class_id
+173:invalid_class_id
+174:invalid_class_id
+175:stone wall
+176:tile wall
+177:wood wall
+178:water
+179:invalid_class_id
+180:window blind
+181:window
+182:invalid_class_id
+183:invalid_class_id
+184:tree,trees,palm tree,bushes
+185:fence,fences
+186:ceiling
+187:sky,clouds
+188:cabinet,cabinets
+189:table
+190:floor,flooring,tile floor
+191:pavement
+192:mountain,mountains
+193:grass
+194:dirt
+195:paper
+196:food
+197:building,buildings
+198:rock
+199:wall,walls
+200:rug

@@ -1,0 +1,20 @@
+{
+  "do_center_crop": false,
+  "do_normalize": true,
+  "do_resize": false,
+  "feature_extractor_type": "CLIPFeatureExtractor",
+  "image_mean": [
+    0.48145466,
+    0.4578275,
+    0.40821073
+  ],
+  "image_std": [
+    0.26862954,
+    0.26130258,
+    0.27577711
+  ],
+  "resample": 3,
+  "max_size": 800,
+  "patch_stride": 16,
+  "dense_stride": 2
+}

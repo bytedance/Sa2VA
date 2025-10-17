@@ -15,7 +15,7 @@
 
 ## Opensource progress
 
-- [x] Release Qwen-VL related models. (To be done)
+- [x] Release Qwen2.5-VL related models.
 - [x] Release Open-sourced training datasets.
 - [x] Release Ref-SAM-v dataset.
 - [x] Release evaluation code for each dataset. 
@@ -41,6 +41,11 @@ We provide the following models:
 |  Sa2VA-4B  | [InternVL2.5-4B](https://huggingface.co/OpenGVLab/InternVL2_5-4B) |    [Qwen2.5-3B-Instruct](https://huggingface.co/Qwen/Qwen2.5-3B-Instruct)     | [🤗 link](https://huggingface.co/ByteDance/Sa2VA-4B) |
 |  Sa2VA-8B  | [InternVL2.5-8B](https://huggingface.co/OpenGVLab/InternVL2_5-8B) |  [internlm2_5-7b-chat](https://huggingface.co/internlm/internlm2_5-7b-chat)   | [🤗 link](https://huggingface.co/ByteDance/Sa2VA-8B) |
 |  Sa2VA-26B | [InternVL2.5-26B](https://huggingface.co/OpenGVLab/InternVL2_5-26B) |  [internlm2_5-20b-chat](https://huggingface.co/internlm/internlm2_5-20b-chat)   | [🤗 link](https://huggingface.co/ByteDance/Sa2VA-26B) |
+|  Sa2VA-InternVL3-2B	 | [InternVL3-2B](https://huggingface.co/OpenGVLab/InternVL3-2B) |  [Qwen2.5-1.5B](https://huggingface.co/Qwen/Qwen2.5-1.5B)   | [🤗 link](https://huggingface.co/ByteDance/Sa2VA-InternVL3-2B) |
+|  Sa2VA-InternVL3-8B	 | [InternVL3-8B](https://huggingface.co/OpenGVLab/InternVL3-8B) |  [Qwen2.5-7B](https://huggingface.co/Qwen/Qwen2.5-7B)   | [🤗 link](https://huggingface.co/ByteDance/Sa2VA-InternVL3-8B) |
+|  Sa2VA-InternVL3-14B	 | [InternVL3-14B](https://huggingface.co/OpenGVLab/InternVL3-14B) |  [Qwen2.5-14B](https://huggingface.co/Qwen/Qwen2.5-14B)   | [🤗 link](https://huggingface.co/ByteDance/Sa2VA-InternVL3-14B) |
+|  Sa2VA-Qwen2_5-VL-3B	 | [Qwen2.5-VL-3B-Instruct](https://huggingface.co/Qwen/Qwen2.5-VL-3B-Instruct) |  [Qwen2.5-3B](https://huggingface.co/Qwen/Qwen2.5-3B)   | [🤗 link](https://huggingface.co/ByteDance/Sa2VA-Qwen2_5-VL-3B) |
+|  Sa2VA-Qwen2_5-VL-7B	 | [Qwen2.5-VL-7B-Instruct](https://huggingface.co/Qwen/Qwen2.5-VL-7B-Instruct) |  [Qwen2.5-7B](https://huggingface.co/Qwen/Qwen2.5-7B)   | [🤗 link](https://huggingface.co/ByteDance/Sa2VA-Qwen2_5-VL-7B) |
 
 ## 🤗 Gradio Demos
 
@@ -134,7 +139,8 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 Then, create a virtual environment and sync the dependencies:
 ```bash
-uv sync
+uv sync --extra=latest # or uv sync --extra=legacy for Sa2VA based on InternVL2/2.5
+source .venv/bin/activate
 ```
 
 **Option 2: Using `conda` and `pip`**
@@ -224,7 +230,11 @@ python tools/convert_to_hf.py projects/sa2va/configs/sa2va_in30_8b.py --pth-mode
 
 Please adopt the following script to test Sa2VA on video object segmentation benchmarks using 8 GPUS.
 
-
+You can use the following command to evaluate Sa2VA on all segmentation benchmarks at once:
+```bash
+python projects/sa2va/evaluation/run_all_evals.py /path/to/SA2VA/model --gpus 8
+```
+or you can evaluate Sa2VA on single segmentation benchmark(such as ReVOS):
 ```bash
 ./projects/llava_sam2/evaluation/dist_test.sh projects/llava_sam2/evaluation/ref_vos_eval.py path-to-hf-model 8 --work-dir path-to-output
 ```

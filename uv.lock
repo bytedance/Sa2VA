@@ -1195,16 +1195,15 @@ wheels = [
 
 [[package]]
 name = "jupyter-core"
-version = "5.8.1"
+version = "5.9.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "platformdirs" },
-    { name = "pywin32", marker = "(platform_python_implementation != 'PyPy' and sys_platform == 'win32') or (platform_python_implementation == 'PyPy' and extra == 'extra-5-sa2va-latest' and extra == 'extra-5-sa2va-legacy') or (sys_platform != 'win32' and extra == 'extra-5-sa2va-latest' and extra == 'extra-5-sa2va-legacy')" },
     { name = "traitlets" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/99/1b/72906d554acfeb588332eaaa6f61577705e9ec752ddb486f302dafa292d9/jupyter_core-5.8.1.tar.gz", hash = "sha256:0a5f9706f70e64786b75acba995988915ebd4601c8a52e534a40b51c95f59941", size = 88923, upload-time = "2025-05-27T07:38:16.655Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/02/49/9d1284d0dc65e2c757b74c6687b6d319b02f822ad039e5c512df9194d9dd/jupyter_core-5.9.1.tar.gz", hash = "sha256:4d09aaff303b9566c3ce657f580bd089ff5c91f5f89cf7d8846c3cdf465b5508", size = 89814, upload-time = "2025-10-16T19:19:18.444Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/2f/57/6bffd4b20b88da3800c5d691e0337761576ee688eb01299eae865689d2df/jupyter_core-5.8.1-py3-none-any.whl", hash = "sha256:c28d268fc90fb53f1338ded2eb410704c5449a358406e8a948b75706e24863d0", size = 28880, upload-time = "2025-05-27T07:38:15.137Z" },
+    { url = "https://files.pythonhosted.org/packages/e7/e7/80988e32bf6f73919a113473a604f5a8f09094de312b9d52b79c2df7612b/jupyter_core-5.9.1-py3-none-any.whl", hash = "sha256:ebf87fdc6073d142e114c72c9e29a9d7ca03fad818c5d300ce2adc1fb0743407", size = 29032, upload-time = "2025-10-16T19:19:16.783Z" },
 ]
 
 [[package]]
@@ -1945,7 +1944,7 @@ wheels = [
 
 [[package]]
 name = "openai"
-version = "2.3.0"
+version = "2.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
@@ -1957,9 +1956,9 @@ dependencies = [
     { name = "tqdm" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/de/90/8f26554d24d63ed4f94d33c24271559863223a67e624f4d2e65ba8e48dca/openai-2.3.0.tar.gz", hash = "sha256:8d213ee5aaf91737faea2d7fc1cd608657a5367a18966372a3756ceaabfbd812", size = 589616, upload-time = "2025-10-10T01:12:50.851Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ef/24/d0b0f088c39fa75a73292aef24d7436fbc537f12bf6026c6a69a1bfdae6e/openai-2.4.0.tar.gz", hash = "sha256:97860859172b637ffb308433c207a371d4683586ed2b24b360cb4c08cf377d01", size = 591541, upload-time = "2025-10-16T15:14:05.163Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/9c/5b/4be258ff072ed8ee15f6bfd8d5a1a4618aa4704b127c0c5959212ad177d6/openai-2.3.0-py3-none-any.whl", hash = "sha256:a7aa83be6f7b0ab2e4d4d7bcaf36e3d790874c0167380c5d0afd0ed99a86bd7b", size = 999768, upload-time = "2025-10-10T01:12:48.647Z" },
+    { url = "https://files.pythonhosted.org/packages/d8/f6/68a8bbb62c001e5580de6b89372ddab03c3484ac3e251c298a30da094f5e/openai-2.4.0-py3-none-any.whl", hash = "sha256:5099f4fbfa80e7e5785ba52402c580eadba21e6172c85df05455676605ad150f", size = 1003092, upload-time = "2025-10-16T15:14:02.826Z" },
 ]
 
 [[package]]
@@ -3096,14 +3095,14 @@ wheels = [
 
 [[package]]
 name = "tifffile"
-version = "2025.10.4"
+version = "2025.10.16"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "numpy" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/a8/13/1dcd158fdcd99d697ba60af153db5034613011516fc0b37a4ca0b7e61b66/tifffile-2025.10.4.tar.gz", hash = "sha256:2e437c16ab211be5bcdc79f71b4907359115f1f83b5d919e7c297c29725d3e38", size = 369486, upload-time = "2025-10-06T00:14:00.46Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/2d/b5/0d8f3d395f07d25ec4cafcdfc8cab234b2cc6bf2465e9d7660633983fe8f/tifffile-2025.10.16.tar.gz", hash = "sha256:425179ec7837ac0e07bc95d2ea5bea9b179ce854967c12ba07fc3f093e58efc1", size = 371848, upload-time = "2025-10-16T22:56:09.043Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/6e/ff/e2f8dae90fb642b4b6f24464a2f96a3dc3b69151c51f7db24433be0f3f56/tifffile-2025.10.4-py3-none-any.whl", hash = "sha256:7687d691e49026053181470cec70fa9250e3a586b2041041297e38b10bbd34e1", size = 230357, upload-time = "2025-10-06T00:13:58.806Z" },
+    { url = "https://files.pythonhosted.org/packages/e6/5e/56c751afab61336cf0e7aa671b134255a30f15f59cd9e04f59c598a37ff5/tifffile-2025.10.16-py3-none-any.whl", hash = "sha256:41463d979c1c262b0a5cdef2a7f95f0388a072ad82d899458b154a48609d759c", size = 231162, upload-time = "2025-10-16T22:56:07.214Z" },
 ]
 
 [[package]]

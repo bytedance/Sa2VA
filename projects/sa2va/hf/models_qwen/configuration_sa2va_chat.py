@@ -17,8 +17,8 @@ class Sa2VAChatConfigQwen(Qwen2_5_VLConfig):
             template=None,
             **kwargs
         ):
-
         super().__init__(**kwargs)
+        self.template = template
 
     def to_dict(self):
         """
@@ -27,6 +27,8 @@ class Sa2VAChatConfigQwen(Qwen2_5_VLConfig):
         Returns:
             `Dict[str, any]`: Dictionary of all the attributes that make up this configuration instance,
         """
+
         output = super().to_dict()
+        output["template"] = self.template
 
         return output
