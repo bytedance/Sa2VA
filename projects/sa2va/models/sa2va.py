@@ -58,10 +58,6 @@ class Sa2VAModel(BaseModel):
         if not frozen_sam2_decoder:
             self.grounding_encoder.sam2_model.sam_mask_decoder.requires_grad_(True)
 
-        self.mllm.manual_prepare_llm_for_lora()
-        self.mllm.use_llm_lora = True
-        self.mllm.use_visual_encoder_lora = False
-
         in_dim = self.mllm.get_embedding_size()
         out_dim = self.grounding_encoder.hidden_dim
         self.text_hidden_fcs = nn.Sequential(
@@ -85,6 +81,10 @@ class Sa2VAModel(BaseModel):
 
         self.template = template
         self.bs = training_bs
+
+        self.mllm.manual_prepare_llm_for_lora()
+        self.mllm.use_llm_lora = True
+        self.mllm.use_visual_encoder_lora = False
 
         # Print gradient status of all weights in self.mllm.model.base_model.model
         print("\n" + "="*80)

@@ -123,6 +123,7 @@ pretrained/
 temp_*/
 OUTPUT/
 DEV_README.md
+tmp_data/
 
 # Pytorch
 *.pth

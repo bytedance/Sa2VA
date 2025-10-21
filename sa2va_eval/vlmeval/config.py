@@ -151,6 +151,7 @@ internvl_series = {
     'Sa2VA-InternVL3-14B': partial(Sa2VAChat, model_path='ByteDance/Sa2VA-InternVL3-14B'),
     'Sa2VA-Qwen2_5-VL-3B': partial(Sa2VAChat, model_path='ByteDance/Sa2VA-Qwen2_5-VL-3B'),
     'Sa2VA-Qwen2_5-VL-7B': partial(Sa2VAChat, model_path='ByteDance/Sa2VA-Qwen2_5-VL-7B'),
+    'Sa2VA-Qwen3-VL-4B': partial(Sa2VAChat, model_path='ByteDance/Sa2VA-Qwen3-VL-4B'),
 }
 
 internvl3 = {

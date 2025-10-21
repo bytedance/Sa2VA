@@ -46,6 +46,7 @@ We provide the following models:
 |  Sa2VA-InternVL3-14B	 | [InternVL3-14B](https://huggingface.co/OpenGVLab/InternVL3-14B) |  [Qwen2.5-14B](https://huggingface.co/Qwen/Qwen2.5-14B)   | [🤗 link](https://huggingface.co/ByteDance/Sa2VA-InternVL3-14B) |
 |  Sa2VA-Qwen2_5-VL-3B	 | [Qwen2.5-VL-3B-Instruct](https://huggingface.co/Qwen/Qwen2.5-VL-3B-Instruct) |  [Qwen2.5-3B](https://huggingface.co/Qwen/Qwen2.5-3B)   | [🤗 link](https://huggingface.co/ByteDance/Sa2VA-Qwen2_5-VL-3B) |
 |  Sa2VA-Qwen2_5-VL-7B	 | [Qwen2.5-VL-7B-Instruct](https://huggingface.co/Qwen/Qwen2.5-VL-7B-Instruct) |  [Qwen2.5-7B](https://huggingface.co/Qwen/Qwen2.5-7B)   | [🤗 link](https://huggingface.co/ByteDance/Sa2VA-Qwen2_5-VL-7B) |
+|  Sa2VA-Qwen3-VL-4B	 | [Qwen3-VL-4B-Instruct](https://huggingface.co/Qwen/Qwen3-VL-4B-Instruct) |  [Qwen3-4B](https://huggingface.co/Qwen/Qwen3-4B)   | [🤗 link](https://huggingface.co/ByteDance/Sa2VA-Qwen3-VL-4B) |
 
 ## 🤗 Gradio Demos
 
@@ -212,6 +213,17 @@ Please run the following script to train using 8 GPUS, we suggest using at least
 ```bash
 bash tools/dist.sh train projects/sa2va/configs/sa2va_in30_8b.py 8
 ```
+</details>
+
+<details open>
+<summary>Fine-tuning</summary>
+
+We provide a simple example for fine-tuning Sa2VA on an image referring segmentation task. For detailed instructions, please refer to our [fine-tuning guide](./docs/finetune.md).
+
+The example dataset is constructed from a few images from RefCOCO. To fine-tune on your own data, you can organize it in the same format as our example `annotations.json`. You can download the example dataset from [Hugging Face](https://huggingface.co/datasets/bitersun/Sa2VA-finetune-example).
+
+For other types of data, you may need to customize the dataloader and configuration. Please refer to `projects/sa2va/datasets/sa2va_data_finetune.py` and `projects/sa2va/configs/sa2va_finetune.py` for guidance.
+
 </details>
 
 <details open>

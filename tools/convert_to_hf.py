@@ -46,6 +46,7 @@ def main():
 
     # load config
     cfg = Config.fromfile(args.config)
+    print("cfg.model:", cfg.model)
     model = BUILDER.build(cfg.model)
     backend = get_file_backend(args.pth_model)
 
@@ -75,8 +76,12 @@ def main():
     from projects.sa2va.hf.models.configuration_sa2va_chat import Sa2VAChatConfig
     from projects.sa2va.hf.models.modeling_sa2va_chat import Sa2VAChatModel
 
-    from projects.sa2va.hf.models_qwen.configuration_sa2va_chat import Sa2VAChatConfigQwen
-    from projects.sa2va.hf.models_qwen.modeling_sa2va_qwen import Sa2VAChatModelQwen
+    if 'qwen3' in cfg.path.lower():
+        from projects.sa2va.hf.models_qwen3vl.configuration_sa2va_chat import Sa2VAChatConfigQwen
+        from projects.sa2va.hf.models_qwen3vl.modeling_sa2va_qwen import Sa2VAChatModelQwen
+    else:
+        from projects.sa2va.hf.models_qwen2_5_vl.configuration_sa2va_chat import Sa2VAChatConfigQwen
+        from projects.sa2va.hf.models_qwen2_5_vl.modeling_sa2va_qwen import Sa2VAChatModelQwen
 
     arch_type = cfg.model.get('arch_type', 'internvl')
     print("arch_type:", arch_type)
@@ -180,7 +185,10 @@ def main():
 
     # copy the files
     if 'qwen' in arch_type:
-        os.system(f"cp -pr ./projects/sa2va/hf/models_qwen/* {args.save_path}")
+        if 'qwen3' in cfg.path.lower():
+            os.system(f"cp -pr ./projects/sa2va/hf/models_qwen3vl/* {args.save_path}")
+        else:
+            os.system(f"cp -pr ./projects/sa2va/hf/models_qwen2_5_vl/* {args.save_path}")
     else:
         os.system(f"cp -pr ./projects/sa2va/hf/models/* {args.save_path}")
 
