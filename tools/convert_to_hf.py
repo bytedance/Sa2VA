@@ -46,7 +46,6 @@ def main():
 
     # load config
     cfg = Config.fromfile(args.config)
-    print("cfg.model:", cfg.model)
     model = BUILDER.build(cfg.model)
     backend = get_file_backend(args.pth_model)
 
