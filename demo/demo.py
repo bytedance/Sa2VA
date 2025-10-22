@@ -2,7 +2,9 @@ import argparse
 import os
 
 from PIL import Image
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer, AutoProcessor, AutoConfig
+
+import torch
 
 import cv2
 try:
@@ -11,6 +13,46 @@ except ImportError:
     Visualizer = None
     print("Warning: mmengine is not installed, visualization is disabled.")
 
+def get_rank_and_world_size():
+    rank = int(os.environ.get('RANK', 0))
+    world_size = int(os.environ.get('WORLD_SIZE', 1))
+    return rank, world_size
+
+def split_model(model_path):
+    import math
+    device_map = {}
+    num_gpus = torch.cuda.device_count()
+    rank, world_size = get_rank_and_world_size()
+    num_gpus = num_gpus // world_size
+
+    config = AutoConfig.from_pretrained(model_path, trust_remote_code=True)
+    num_layers = config.llm_config.num_hidden_layers
+    print(f"Model {model_path} has {num_layers} layers.")
+
+    # Since the first GPU will be used for ViT, treat it as 0.5 GPU.
+    num_layers_per_gpu = math.ceil(num_layers / (num_gpus - 0.5))
+    num_layers_per_gpu = [num_layers_per_gpu] * num_gpus
+    num_layers_per_gpu[0] = math.ceil(num_layers_per_gpu[0] * 0.5)
+    print(f"num_layers_per_gpu: {num_layers_per_gpu}")
+    
+    layer_cnt = 0
+    for i, num_layer in enumerate(num_layers_per_gpu):
+        for j in range(num_layer):
+            device_map[f'language_model.model.layers.{layer_cnt}'] = rank + world_size * i
+            layer_cnt += 1
+    
+    device_map['vision_model'] = rank
+    device_map['mlp1'] = rank
+    device_map['language_model.model.tok_embeddings'] = rank
+    device_map['language_model.model.embed_tokens'] = rank
+    device_map['language_model.output'] = rank
+    device_map['language_model.model.norm'] = rank
+    device_map['language_model.lm_head'] = rank
+    device_map[f'language_model.model.layers.{num_layers - 1}'] = rank
+    device_map['grounding_encoder'] = rank
+    device_map['text_hidden_fcs'] = rank
+
+    return device_map
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Video Reasoning Segmentation')
@@ -39,9 +81,20 @@ if __name__ == "__main__":
     model = AutoModelForCausalLM.from_pretrained(
         model_path,
         torch_dtype="auto",
-        device_map="auto",
+        #device_map="auto",
         trust_remote_code=True
     )
+    """
+    # For distributed inference, uncomment the following lines to get device_map
+
+    device_map=split_model(model_path)
+    model = AutoModelForCausalLM.from_pretrained(
+        model_path,
+        torch_dtype=torch.bfloat16,
+        device_map=device_map,
+        trust_remote_code=True
+    )
+    """
 
     tokenizer = AutoTokenizer.from_pretrained(
         model_path,
