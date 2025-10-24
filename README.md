@@ -15,6 +15,9 @@
 
 ## Opensource progress
 
+
+- [x] Release Qwen3-VL related models.
+- [x] Release InternVL-3-VL related models.
 - [x] Release Qwen2.5-VL related models.
 - [x] Release Open-sourced training datasets.
 - [x] Release Ref-SAM-v dataset.
