@@ -86,7 +86,6 @@ if __name__ == "__main__":
     )
     """
     # For distributed inference, uncomment the following lines to get device_map
-
     device_map=split_model(model_path)
     model = AutoModelForCausalLM.from_pretrained(
         model_path,
@@ -96,10 +95,20 @@ if __name__ == "__main__":
     )
     """
 
-    tokenizer = AutoTokenizer.from_pretrained(
-        model_path,
-        trust_remote_code=True
-    )
+    if 'qwen' in model_path.lower():
+        print("Using AutoProcessor for Qwen-VL model.")
+        processor = AutoProcessor.from_pretrained(
+            model_path,
+            trust_remote_code=True
+        )
+        tokenizer = None
+    else:
+        processor = None
+        tokenizer = AutoTokenizer.from_pretrained(
+            model_path,
+            trust_remote_code=True
+        )
+
 
     image_files = []
     image_paths = []
@@ -124,14 +133,16 @@ if __name__ == "__main__":
             image=img_frame,
             text=cfg.text,
             tokenizer=tokenizer,
-        )
+            processor=processor,
+        ) # type: ignore
     else:
         print(f"The input is:\n{cfg.text}")
         result = model.predict_forward(
             video=vid_frames,
             text=cfg.text,
             tokenizer=tokenizer,
-        )
+            processor=processor,
+        ) # type: ignore
 
     prediction = result['prediction']
     print(f"The output is:\n{prediction}")
