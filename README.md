@@ -13,8 +13,10 @@
 
 ![Teaser](assets/images/teaser.jpg)
 
-## Opensource progress
+## News
+- 🏅 [SaSaSa2VA](./projects/sasasa2va/README.md) wins the 1st Place in ICCV 2025 LSVOS Challenge RVOS Track! 🎉🎉
 
+## Opensource progress
 
 - [x] Release Qwen3-VL related models.
 - [x] Release InternVL-3-VL related models.

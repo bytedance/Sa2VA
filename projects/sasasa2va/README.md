@@ -19,6 +19,8 @@ We win 1st place in ICCV 2025 LSVOS (Large-scale Video Object Segmentation) chal
 |  🥈 Transsion  | 64.65 |[📜 arXiv](https://arxiv.org/abs/2509.15546) |  
 |  🥉 dytino | 64.14 |   [📜 arXiv](https://arxiv.org/abs/2509.19082) |
 
+Please check out the full report of the challenge [here](https://arxiv.org/abs/2510.11063?).
+
 ### Our report video in ICCV 2025 has been released!
 
 ⬇️ Please click the teaser to watch the video. 
@@ -75,6 +77,13 @@ If you find our work useful, please consider referring to the challenge report:
   title={The 1st Solution for 7th LSVOS RVOS Track: {SaSaSa2VA}},
   author={Niu, Quanzhu and Gong, Dengxian and Chen, Shihao and Zhang, Tao and Zhou, Yikang and Yuan, Haobo and Qi, Lu and Li, Xiangtai and Ji, Shunping},
   journal={arXiv preprint arXiv:2509.16972},
+  year={2025}
+}
+
+@article{liu2025lsvos,
+  title={LSVOS 2025 Challenge Report: Recent Advances in Complex Video Object Segmentation},
+  author={Chang Liu and Henghui Ding and Kaining Ying and Lingyi Hong and Ning Xu and Linjie Yang and Yuchen Fan and Mingqi Gao and Jingkun Chen and Yunqi Miao and Gengshen Wu and Zhijin Qin and Jungong Han and Zhixiong Zhang and Shuangrui Ding and Xiaoyi Dong and Yuhang Zang and Yuhang Cao and Jiaqi Wang and Chang Soo Lim and Joonyoung Moon and Donghyeon Cho and Tingmin Li and Yixuan Li and Yang Yang and An Yan and Leilei Cao and Feng Lu and Ran Hong and Youhai Jiang and Fengjie Zhu and Yujie Xie and Hongyang Zhang and Zhihui Liu and Shihai Ruan and Quanzhu Niu and Dengxian Gong and Shihao Chen and Tao Zhang and Yikang Zhou and Haobo Yuan and Lu Qi and Xiangtai Li and Shunping Ji and Ran Hong and Feng Lu and Leilei Cao and An Yan and Alexey Nekrasov and Ali Athar and Daan de Geus and Alexander Hermans and Bastian Leibe},
+  journal={arXiv preprint arXiv:2510.11063},
   year={2025}
 }
 ```
