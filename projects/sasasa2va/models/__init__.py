@@ -1,0 +1,1 @@
+from .sasasa2va import SaSaSa2VAModel
