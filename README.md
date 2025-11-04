@@ -281,8 +281,8 @@ If you find this repository useful, please consider referring to the following p
 ```
 @article{sa2va,
   title={Sa2VA: Marrying SAM2 with LLaVA for Dense Grounded Understanding of Images and Videos},
-  author={Yuan, Haobo and Li, Xiangtai and Zhang, Tao and Huang, Zilong and Sun, Yueyi and Xu, Shilin and Ji, Shunping and Tong, Yunhai and Qi, Lu and Feng, Jiashi and Yang, Ming-Hsuan},
-  journal={arXiv},
+  author={Yuan, Haobo and Li, Xiangtai and Zhang, Tao and Sun, Yueyi and Huang, Zilong and Xu, Shilin and Ji, Shunping and Tong, Yunhai and Qi, Lu and Feng, Jiashi and Yang, Ming-Hsuan},
+  journal={arXiv pre-print},
   year={2025}
 }
 ```
