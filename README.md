@@ -12,7 +12,7 @@
 ![Teaser](assets/images/teaser.jpg)
 
 ## News
-- 🏅 [SaSaSa2VA](./projects/sasasa2va/README.md) wins the 1st Place in ICCV 2025 LSVOS Challenge RVOS Track! 🎉🎉
+- 🏅 [SaSaSa2VA](./projects/sasasa2va/README.md) wins the 1st Place in ICCV 2025 LSVOS Challenge RVOS Track! 🎉🎉🎉
 
 ## Opensource progress
 
