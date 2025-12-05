@@ -124,5 +124,29 @@ class SAM2TrainRunner(BaseModule):
             "feat_sizes": feat_sizes,
         }
 
+
+    def get_sam2_feats(self, images):
+                # Step 1: inference the backbone with the images
+        with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
+            feats = self.sam2_model.forward_image(images)
+        return feats
+    
+    def get_sam2_states_from_feats(self, feats, expand_size=1):
+        if expand_size > 1:
+            # feats['vision_features'] = feats['vision_features'][:, None].expand(-1, expand_size, -1, -1, -1).flatten(0, 1)
+            for i, feat in enumerate(feats["backbone_fpn"]):
+                feats["backbone_fpn"][i] = feat[:, None].expand(-1, expand_size, -1, -1, -1).flatten(0, 1)
+            for i, pos in enumerate(feats["vision_pos_enc"]):
+                pos = pos[:, None].expand(-1, expand_size, -1, -1, -1).flatten(0, 1)
+                feats["vision_pos_enc"][i] = pos
+
+        # Step 2: Process the features to output
+        _, current_vision_feats, current_vision_pos_embeds, feat_sizes = self.sam2_model._prepare_backbone_features(feats)
+        return {
+            "current_vision_feats": current_vision_feats,
+            "current_vision_pos_embeds": current_vision_pos_embeds,
+            "feat_sizes": feat_sizes,
+        }
+
     def forward(self, batch):
         raise NotImplementedError

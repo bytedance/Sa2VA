@@ -4,8 +4,8 @@ from typing import Dict, Optional, Union, List
 
 
 import torch
-from transformers import Qwen3VLForConditionalGeneration, AutoTokenizer, AutoProcessor, Qwen3VLProcessor
-from peft import get_peft_model, prepare_model_for_kbit_training
+from transformers import GenerationConfig, Qwen3VLForConditionalGeneration, AutoTokenizer, AutoProcessor, Qwen3VLProcessor
+from peft import PeftModelForCausalLM, get_peft_model, prepare_model_for_kbit_training
 
 
 from xtuner.registry import BUILDER
@@ -41,12 +41,23 @@ class Qwen3VL(BaseModel):
         # Note:
         # force to use flash_attention_2 and bfloat16 for training Qwen2.5-VL
         # for better acceleration and memory saving.
-        self.model = Qwen3VLForConditionalGeneration.from_pretrained(
+        self.model: Qwen3VLForConditionalGeneration = Qwen3VLForConditionalGeneration.from_pretrained(
             model_path,
             dtype=torch.bfloat16,
             attn_implementation="flash_attention_2",
             trust_remote_code=True
         )
+
+        # https://github.com/huggingface/transformers/blob/563f2ffb21544ed7d2981c43179c27266a41cfb7/src/transformers/modeling_utils.py#L2828
+
+        # self.model.config.tie_word_embeddings = False
+        # output_embeddings = self.model.get_output_embeddings()
+        # input_embeddings = self.model.get_input_embeddings()
+
+        # if output_embeddings is not None and input_embeddings.weight is output_embeddings.weight:
+        #     print("Warning: the input and output embeddings are tied. Untie them for training.")
+        #     self.model.lm_head.weight = torch.nn.Parameter(input_embeddings.weight.clone())
+
 
         # self.model.enable_input_require_grads()
         self.model.gradient_checkpointing_enable()
@@ -140,13 +151,35 @@ class Qwen3VL(BaseModel):
             output_hidden_states=True,
         )
         return output
-
+    
+    @torch.no_grad()
+    def generate(
+        self,
+        pixel_values: Optional[torch.FloatTensor] = None,
+        input_ids: Optional[torch.FloatTensor] = None,
+        attention_mask: Optional[torch.LongTensor] = None,
+        image_grid_thw: Optional[torch.LongTensor] = None,
+        generation_config: Optional[GenerationConfig] = None,
+        **generate_kwargs,
+    ) -> torch.LongTensor:
+        generated_ids = self.model.generate(
+            input_ids=input_ids,
+            attention_mask=attention_mask,
+            pixel_values=pixel_values,
+            image_grid_thw=image_grid_thw,
+            generation_config=generation_config,
+            **generate_kwargs
+        )
+        return generated_ids
 
     def state_dict(self, *args, **kwargs):
         # filter out the untrainable parameters
         state_dict = super().state_dict(*args, **kwargs)
         to_return = OrderedDict()
-        to_return.update(get_peft_model_state_dict(self.model, state_dict=state_dict))
+        if isinstance(self.model, PeftModelForCausalLM):
+            to_return.update(get_peft_model_state_dict(self.model, state_dict=state_dict))
+        else:
+            to_return.update(state_dict)
         return to_return
 
     def init_weights(self):
@@ -222,76 +255,30 @@ if __name__ == "__main__":
         'input_ids': inputs['input_ids'], # (1, 3602) torch.int64
         'attention_mask': inputs['attention_mask'], #  (1, 3602) torch.int64, all 1
         'labels': inputs['input_ids'], # (1, 3602) torch.int64
-        'pixel_values': [inputs['pixel_values']], # torch.Size([14308, 1176]) torch.float32 torch.Size([11008, 1536]) for qwen3
-        'image_grid_thw': [inputs['image_grid_thw']] # value: 1, 98, 146 (not shape) torch.int64; 1, 86. 128 for qwen3
+        'pixel_values': inputs['pixel_values'], # torch.Size([14308, 1176]) torch.float32 torch.Size([11008, 1536]) for qwen3
+        'image_grid_thw': inputs['image_grid_thw'] # value: 1, 98, 146 (not shape) torch.int64; 1, 86. 128 for qwen3
     }
 
 
-    output = model(mock_data_dict, mode='loss')
+    default_generation_kwargs = dict(
+        max_new_tokens=1024,
+        do_sample=True,
+        temperature=1.2,
+        top_p=0.9,
+        top_k=0,
+        num_return_sequences=4,
+    )
+    gen_config = GenerationConfig(**default_generation_kwargs)
+
+    # output = model(mock_data_dict, mode='loss')
+    output = model.generate(
+        **mock_data_dict,
+        generation_config=gen_config,
+        streamer=None,
+        output_hidden_states=True,
+        return_dict_in_generate=True,
+    )
     print(output)
-
-
-
-# Example Running code of Qwen2.5-VL
-# if __name__ == "__main__":
-#     import torch
-#     from transformers import Qwen2_5_VLForConditionalGeneration, AutoTokenizer, AutoProcessor
-#     from qwen_vl_utils import process_vision_info
-
-
-#     # We recommend enabling flash_attention_2 for better acceleration and memory saving, especially in multi-image and video scenarios.
-#     model = Qwen2_5_VLForConditionalGeneration.from_pretrained(
-#         "pretrained/qwen2_5vl/Qwen2.5-VL-7B-Instruct/",
-#         dtype=torch.bfloat16,
-#         attn_implementation="flash_attention_2",
-#         device_map="auto",
-#     )
-
-#     # default processer
-#     processor = AutoProcessor.from_pretrained("pretrained/qwen2_5vl/Qwen2.5-VL-7B-Instruct")
-
-#     # The default range for the number of visual tokens per image in the model is 4-16384.
-#     # You can set min_pixels and max_pixels according to your needs, such as a token range of 256-1280, to balance performance and cost.
-#     # min_pixels = 256*28*28
-#     # max_pixels = 1280*28*28
-#     # processor = AutoProcessor.from_pretrained("Qwen/Qwen2.5-VL-7B-Instruct", min_pixels=min_pixels, max_pixels=max_pixels)
-
-#     messages = [
-#         {
-#             "role": "user",
-#             "content": [
-#                 {
-#                     "type": "image",
-#                     "image": "https://qianwen-res.oss-cn-beijing.aliyuncs.com/Qwen-VL/assets/demo.jpeg",
-#                 },
-#                 {"type": "text", "text": "Describe this image."},
-#             ],
-#         }
-#     ]
-
-#     # Preparation for inference
-#     text = processor.apply_chat_template(
-#         messages, tokenize=False, add_generation_prompt=True
-#     )
-#     image_inputs, video_inputs = process_vision_info(messages)
-#     inputs = processor(
-#         text=[text],
-#         images=image_inputs,
-#         videos=video_inputs,
-#         padding=True,
-#         return_tensors="pt",
-#     )
-#     inputs = inputs.to("cuda")
-
-#     # Inference: Generation of the output
-#     generated_ids = model.generate(**inputs, max_new_tokens=256)
-#     generated_ids_trimmed = [
-#         out_ids[len(in_ids) :] for in_ids, out_ids in zip(inputs.input_ids, generated_ids)
-#     ]
-#     output_text = processor.batch_decode(
-#         generated_ids_trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False
-#     )
-#     print(output_text)
 
 
 

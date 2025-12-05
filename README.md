@@ -12,6 +12,7 @@
 ![Teaser](assets/images/teaser.jpg)
 
 ## News
+- 🚀 [Visual Reasoning Tracer (VRT)](./projects/vrt_sa2va/README.md) is released!
 - 🏅 [SaSaSa2VA](./projects/sasasa2va/README.md) wins the 1st Place in ICCV 2025 LSVOS Challenge RVOS Track! 🎉🎉🎉
 
 ## Opensource progress

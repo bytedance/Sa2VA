@@ -58,19 +58,14 @@ class Sa2VAModel(BaseModel):
         if not frozen_sam2_decoder:
             self.grounding_encoder.sam2_model.sam_mask_decoder.requires_grad_(True)
 
-        self.mllm.manual_prepare_llm_for_lora()
-
         # FIX: Untie weights for Qwen model
-        if self.arch_type == 'qwen' and self.mllm.model.config.tie_word_embeddings and pretrained_pth is not None:
+        if self.arch_type == 'qwen' and self.mllm.model.config.tie_word_embeddings:
             print("Untying embed_tokens and lm_head weights for Qwen model.")
             self.mllm.model.config.tie_word_embeddings = False
             lm_head = self.mllm.model.get_output_embeddings()
             if lm_head is not None:
                 input_embeddings = self.mllm.model.get_input_embeddings()
                 lm_head.weight = nn.Parameter(input_embeddings.weight.clone())
-
-        self.mllm.use_llm_lora = True
-        self.mllm.use_visual_encoder_lora = False
 
         in_dim = self.mllm.get_embedding_size()
         out_dim = self.grounding_encoder.hidden_dim
@@ -106,6 +101,42 @@ class Sa2VAModel(BaseModel):
 
         self.template = template
         self.bs = training_bs
+
+        if self.mllm.use_llm_lora:
+            self.mllm.manual_prepare_llm_for_lora()
+
+        # Print gradient status of all weights in self.mllm.model.base_model.model
+        print("\n" + "="*80)
+        print("GRADIENT STATUS OF MLLM.MODEL WEIGHTS")
+        print("="*80)
+        
+        try:
+            base_model = self.mllm.model
+            total_params = 0
+            trainable_params = 0
+            
+            for name, param in base_model.named_parameters():
+                total_params += param.numel()
+                if param.requires_grad:
+                    trainable_params += param.numel()
+                    grad_status = "✓ TRAINABLE"
+                else:
+                    grad_status = "✗ FROZEN"
+                
+                print(f"{name:<60} | {grad_status} | Shape: {tuple(param.shape)} | Params: {param.numel():,}")
+            
+            print("-" * 80)
+            print(f"SUMMARY:")
+            print(f"  Total parameters: {total_params:,}")
+            print(f"  Trainable parameters: {trainable_params:,}")
+            print(f"  Frozen parameters: {total_params - trainable_params:,}")
+            print(f"  Trainable ratio: {trainable_params/total_params*100:.2f}%")
+            print("=" * 80)
+            
+        except Exception as e:
+            print(f"Failed to access self.mllm.model: {e}")
+            print("Available attributes in self.mllm.model:")
+            print([attr for attr in dir(self.mllm.model) if not attr.startswith('_')])
 
 
     def _add_special_tokens(self, tokenizer, special_tokens):

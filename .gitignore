@@ -122,6 +122,7 @@ pretrained
 pretrained/
 temp_*/
 OUTPUT/
+log*.txt
 DEV_README.md
 tmp_data/
 
@@ -142,3 +143,7 @@ outputs/
 logs/
 config.json
 quick_test_output/
+
+
+# Release
+projects/sa2va/tests/*

@@ -50,7 +50,6 @@ def main():
     backend = get_file_backend(args.pth_model)
 
     if isinstance(backend, PetrelBackend):
-        from xtuner.utils.fileio import patch_fileio
         state_dict = torch.load(args.pth_model, map_location='cpu', weights_only=False)
     else:
         state_dict = torch.load(args.pth_model, map_location='cpu', weights_only=False)
@@ -65,6 +64,9 @@ def main():
     model._merge_lora()
 
     model.mllm.model.modules_to_save = None
+    if hasattr(model.mllm.model, 'language_model'):
+        # for internvl only; qwen has been fixed in mllm folder
+        model.mllm.model.language_model.modules_to_save = None
     model.mllm.model.transfer_to_hf = True
 
     all_state_dict = model.all_state_dict()

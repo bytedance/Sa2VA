@@ -181,7 +181,11 @@ class RESDataset:
         ret = []
         for sent in sampled_sents:
             if self.reasoning:
-                ret.append("<image>\n Please segment {} in this image. You should first think about the reasoning process in the mind and then provides the user with the answer. Please respond with segmentation mask in both the thinking process and the answer. The reasoning process and answer are enclosed within <think> </think> and <answer> </answer> tags, respectively, i.e., <think> reasoning process here </think> <answer> segmentation here </answer>.".format(sent))
+                # Match the training prompt format exactly
+                question = "Please segment {} in this image.".format(sent)
+                think_prompt = "You should first think about the reasoning process in the mind and then provides the user with the answer. Please respond with segmentation mask in both the thinking process and the answer."
+                template_prompt = "The reasoning process and answer are enclosed within <think> </think> and <answer> </answer> tags, respectively, i.e., <think> reasoning process here </think> <answer> answers here </answer>."
+                ret.append("<image>\n{}\n\n{}\n\n{}".format(question, think_prompt, template_prompt))
             else:
                 ret.append("<image>\n Please segment {} in this image.".format(sent))
 

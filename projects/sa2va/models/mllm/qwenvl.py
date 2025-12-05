@@ -5,7 +5,7 @@ from typing import Dict, Optional, Union, List
 
 import torch
 from transformers import Qwen2_5_VLForConditionalGeneration, AutoTokenizer, AutoProcessor, Qwen2_5_VLProcessor
-from peft import get_peft_model, prepare_model_for_kbit_training
+from peft import PeftModelForCausalLM, get_peft_model, prepare_model_for_kbit_training
 
 
 from xtuner.registry import BUILDER
@@ -142,7 +142,10 @@ class Qwen2_5_VL(BaseModel):
         # filter out the untrainable parameters
         state_dict = super().state_dict(*args, **kwargs)
         to_return = OrderedDict()
-        to_return.update(get_peft_model_state_dict(self.model, state_dict=state_dict))
+        if isinstance(self.model, PeftModelForCausalLM):
+            to_return.update(get_peft_model_state_dict(self.model, state_dict=state_dict))
+        else:
+            to_return.update(state_dict)
         return to_return
 
     def init_weights(self):

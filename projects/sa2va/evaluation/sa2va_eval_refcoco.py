@@ -30,10 +30,18 @@ def parse_args():
         choices=['none', 'pytorch', 'slurm', 'mpi'],
         default='none',
         help='job launcher')
+    parser.add_argument(
+        '--vis',
+        action='store_true',
+        help='whether to visualize the results')
+    parser.add_argument(
+        '--with-thinking',
+        action='store_true',
+        help='whether to enable the reasoning process')
     
     parser.add_argument('--local_rank', '--local-rank', type=int, default=0)
     parser.add_argument('--deepspeed', type=str, default=None) # dummy
-    parser.add_argument('--data_root', default=None, help='Root directory for all datasets.')
+    parser.add_argument('--data_root', default='/mnt/bn/zilongdata-us/xiangtai/Sa2VA/data', help='Root directory for all datasets.')
     args = parser.parse_args()
     if 'LOCAL_RANK' not in os.environ:
         os.environ['LOCAL_RANK'] = str(args.local_rank)
@@ -100,7 +108,7 @@ def main():
         dataset_name=dataset_info['dataset_name'],
         data_path=data_path,
         split=args.split,
-        reasoning=False,
+        reasoning=args.with_thinking,
     )
 
     sampler = torch.utils.data.DistributedSampler(
@@ -140,17 +148,15 @@ def main():
             pred_mask = pred['prediction_masks']
             pred_text = pred['prediction']
             print(f"Text: {text}")
-            # print(f"Raw pred text: '{repr(pred_text)}'")  # 使用 repr 查看完整格式
-            # print(f"Pred text cleaned: '{pred_text.strip()}'")
-            # print(f"Number of pred masks: {len(pred_mask)}")
+            print(f"Predicted Text: {pred_text}")
             
-            # 尝试清理文本
+            print(f"Number of pred masks: {len(pred_mask)}")
+            
             cleaned_pred_text = pred_text.replace('<|im_end|>', '').strip()
             _, answer_seg_idx = find_seg_indices(cleaned_pred_text)
-            #print(f"Answer seg indices with cleaned text: {answer_seg_idx}")
-
+            print(f"Answer seg indices with cleaned text: {answer_seg_idx}")
+            
             if len(answer_seg_idx) == 0:
-                # 如果清理后还是找不到，尝试原始文本
                 _, answer_seg_idx = find_seg_indices(pred_text)
                 #print(f"Answer seg indices with raw text: {answer_seg_idx}")
             
@@ -166,23 +172,26 @@ def main():
                 # List (1, h, w) -> (n, h, w)
                 pred_n_masks.append(np.concatenate(pred_mask, axis=0))
     
-                # 清理预测文本
                 cleaned_pred_text = pred_text.replace('<|im_end|>', '').replace('<|end|>', '').strip()
-                #print(f"Cleaned pred_text: '{cleaned_pred_text}'")
                 
-                # 检查是否有[SEG]标记
-                if '[SEG]' in cleaned_pred_text:
-                    #print("Found [SEG] token, using predicted mask")
-                    if len(pred_mask) > 0:
-                        final_mask = pred_mask[0]
-                        for mask in pred_mask[1:]:
+                _, answer_seg_idx = find_seg_indices(cleaned_pred_text)
+                
+                if len(answer_seg_idx) > 0:
+                    print(f"Found {len(answer_seg_idx)} [SEG] tokens in answer, using corresponding masks")
+
+                    selected_masks = [pred_mask[idx] for idx in answer_seg_idx if idx < len(pred_mask)]
+                    
+                    if len(selected_masks) > 0:
+                        final_mask = selected_masks[0]
+                        for mask in selected_masks[1:]:
                             final_mask = final_mask | mask
                         _ret_mask = mask_to_rle(final_mask)
                         pred_masks.append(_ret_mask)
                     else:
+                        print("No valid masks for answer [SEG] tokens")
                         pred_masks.append(None)
                 else:
-                    #print("No [SEG] token found")
+                    print("No [SEG] token found in answer")
                     pred_masks.append(None)
                     continue
 

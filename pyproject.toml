@@ -5,9 +5,9 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11,<3.12"
 dependencies = [
-    "decord==0.6.0",
+    "decord2==1.0.0",
     "flash-attn==2.7.3",
-    "google-genai>=1.25.0",
+    "google-genai>=1.49.0",
     "hydra-core>=1.3.2",
     "octorun>=0.1.2",
     "openai>=1.97.1",
@@ -30,7 +30,7 @@ dependencies = [
 
 [project.optional-dependencies]
 latest = [
-  "transformers==4.57.0",
+  "transformers==4.57.1",
   "peft==0.17.1",
 ]
 legacy = [
