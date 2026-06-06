@@ -49,14 +49,21 @@ Use `uv` to manage dependencies. First install `uv`:
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
-Then sync the dependencies, choosing the extra based on your model family (run from the repository root):
+The environment is defined here in `projects/sa2va` (`pyproject.toml` + `uv.lock`). The easiest way to set it up is the helper script at the repo root, which puts the virtualenv in `/tmp` and symlinks it back into the project:
+```bash
+bash setup_env.sh sa2va latest    # or: bash setup_env.sh sa2va legacy
+```
+
+Or sync manually from this directory, choosing the extra based on your model family:
 - `uv sync --extra=latest` for newer models — Qwen3-VL, Qwen2.5-VL, InternVL3 (latest Transformers).
 - `uv sync --extra=legacy` for InternVL2.5 or earlier models (legacy Transformers).
 
 ```bash
+cd projects/sa2va
 uv sync --extra=latest   # or: uv sync --extra=legacy
 source .venv/bin/activate
 ```
+Run training / evaluation commands from the **repository root** (with this environment activated) — the code uses repo-root-relative imports such as `projects.sa2va`, `third_parts`, and `vlm`.
 
 ## 🚀 Quick Start
 

@@ -1,0 +1,3 @@
+# Marker for /opt/tiger/init/launch.sh: skip `uv sync` on launch nodes.
+# The environment is managed explicitly via setup_env.sh (venv in /tmp, symlinked
+# into projects/sa2va), so the launcher must not re-sync into a real .venv here.

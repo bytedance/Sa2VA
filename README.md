@@ -38,7 +38,22 @@ We manage dependencies with [`uv`](https://docs.astral.sh/uv/). Install it once:
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-**Each project ships its own environment.** Please follow the setup instructions in the corresponding project README (linked above) to install the dependencies for the project you want to run.
+The environment is defined under [`projects/sa2va`](./projects/sa2va) (`pyproject.toml` + `uv.lock`) and shared across the projects. The quickest way to set it up — with the virtualenv placed in `/tmp` and symlinked back into the project — is the helper script at the repo root:
+```bash
+bash setup_env.sh                 # projects/sa2va, --extra=latest
+# bash setup_env.sh sa2va legacy  # InternVL2.5 or earlier
+```
+Or do it manually:
+```bash
+cd projects/sa2va
+uv sync --extra=latest            # or --extra=legacy
+```
+Then run training / evaluation from the repository root with the environment activated (`source projects/sa2va/.venv/bin/activate`). See each project's README for project-specific steps.
+
+For tokens / API keys (HuggingFace, OpenRouter), copy the template and fill it in — `setup_env.sh` loads it automatically:
+```bash
+cp .env.example .env   # then edit .env
+```
 
 Why `uv`? It treats the environment as code: dependencies are declared in `pyproject.toml` and every transitive package is version-locked in `uv.lock`. The result is a single source of truth that is fully reproducible across machines, trivial to maintain, and recreated exactly with one `uv sync` — no manual `pip install` drift.
 
