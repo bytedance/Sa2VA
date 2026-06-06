@@ -3,7 +3,7 @@ from collections import OrderedDict
 import torch
 from tqdm import tqdm
 
-from projects.llava_sam2.models.extension import SAM2Base
+from projects.sa2va.models.extension import SAM2Base
 from third_parts.sam2.modeling.sam2_base import NO_OBJ_SCORE
 from third_parts.sam2.utils.misc import fill_holes_in_mask_scores
 

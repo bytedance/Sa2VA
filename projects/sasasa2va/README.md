@@ -68,7 +68,7 @@ projects/sasasa2va/evaluation/dist_test.sh projects/sasasa2va/evaluation/ref_vos
 ```
 * We provide 5 inference modes: uniform(default), uniform_plus, q_frame, wrap_around, wrap_around_plus. If you use q_frame mode, please prepare q_frame indices in `data/mevis_q_frame/valid/selected_frames.json` and `data/mevis_q_frame/valid_u/selected_frames.json`.
 * If you turn on `--submit`, the outputs will be .png format masks for [MeViS valid server](https://codalab.lisn.upsaclay.fr/competitions/15094).
-* You can use `tools/llava_sam2_eval/eval_mevis.py` to compute metrics on MeViS valid_u split.
+* You can use `tools/eval/eval_mevis.py` to compute metrics on MeViS valid_u split.
 
 ## Citation
 If you find our work useful, please consider referring to the challenge report:

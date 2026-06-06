@@ -55,7 +55,6 @@ class Sa2VAVRTTrain(Sa2VABaseDataset):
     """Second-version Dataset for VRT SA1B data with Sa2VA unified architecture.
     
     This dataset loader is based on the unified Sa2VA architecture (projects/sa2va)
-    instead of the older llava_sam2 architecture. It provides better model support
     and follows the modern dataset design patterns.
     
     Supports loading from either:

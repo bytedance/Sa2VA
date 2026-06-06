@@ -60,21 +60,21 @@ source .venv/bin/activate
 
 ## 🚀 Quick Start
 
-Our Sa2VA model is available on 🤗HuggingFace. With very few steps, you can try it with your own data. You can install the `demo/requirements.txt` to avoid training-only packages.
+Our Sa2VA model is available on 🤗HuggingFace. With very few steps, you can try it with your own data. You can install the `projects/sa2va/demo/requirements.txt` to avoid training-only packages.
 
 **Option 1 - scripts:**
 
 Supposing you have a folder (`PATH_TO_FOLDER`) that contains images of a video, you can use the following script to chat with the Sa2VA model or segment the objects in the videos.
 
 ```bash
-python demo/demo.py PATH_TO_FOLDER --model_path ByteDance/Sa2VA-8B --work-dir OUTPUT_DIR --text "<image>Please describe the video content."
+python projects/sa2va/demo/demo.py PATH_TO_FOLDER --model_path ByteDance/Sa2VA-8B --work-dir OUTPUT_DIR --text "<image>Please describe the video content."
 ```
 
 If the output contains the segmentation results, the results will be saved to `OUTPUT_DIR`.
 
 **Option 2 - Jupyter Notebook:**
 
-Please refer to `demo.ipynb` in the repository root.
+Please refer to `projects/sa2va/demo.ipynb`.
 
 **Option 3 - Gradio:**
 
@@ -209,7 +209,7 @@ Configs for other backbones live under `projects/sa2va/configs/` (InternVL3: `sa
 <details open>
 <summary>Fine-tuning</summary>
 
-We provide a simple example for fine-tuning Sa2VA on an image referring segmentation task. For detailed instructions, please refer to our [fine-tuning guide](../../docs/finetune.md).
+We provide a simple example for fine-tuning Sa2VA on an image referring segmentation task. For detailed instructions, please refer to our [fine-tuning guide](docs/finetune.md).
 
 The example dataset is constructed from a few images from RefCOCO. To fine-tune on your own data, you can organize it in the same format as our example `annotations.json`. You can download the example dataset from [Hugging Face](https://huggingface.co/datasets/bitersun/Sa2VA-finetune-example).
 
@@ -240,7 +240,7 @@ python projects/sa2va/evaluation/run_all_evals.py /path/to/SA2VA/model --gpus 8
 ```
 or you can evaluate Sa2VA on single segmentation benchmark(such as ReVOS):
 ```bash
-./projects/llava_sam2/evaluation/dist_test.sh projects/llava_sam2/evaluation/ref_vos_eval.py path-to-hf-model 8 --work-dir path-to-output
+./projects/sa2va/evaluation/dist_test.sh projects/sa2va/evaluation/sa2va_eval_ref_vos.py path-to-hf-model 8 --work_dir path-to-output
 ```
 </details>
 

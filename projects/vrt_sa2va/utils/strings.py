@@ -1,7 +1,6 @@
 import re
 
 
-# directly copy from llava_sam2/models/utils.py
 def find_seg_indices(text):
     all_seg_indices = [m.start() for m in re.finditer(r'\[SEG\]', text)]
     answer_spans = [(m.start(), m.end()) for m in re.finditer(r'<answer>.*?</answer>', text, re.DOTALL)]
