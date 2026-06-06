@@ -147,3 +147,6 @@ quick_test_output/
 
 # Release
 projects/sa2va/tests/*
+
+workspace
+workspace/
