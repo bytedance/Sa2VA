@@ -218,7 +218,7 @@ def main():
             all_images_ids.append(image['id'])
 
     # The directory is used to store intermediate files
-    tmp_dir_path = f"tmp/{os.path.basename(args.prediction_dir_path)}_{split}"
+    tmp_dir_path = f"workspace/tmp/{os.path.basename(args.prediction_dir_path)}_{split}"
     os.makedirs(tmp_dir_path, exist_ok=True)  # Create directory if not exists already
 
     # Create predictions
