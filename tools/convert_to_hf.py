@@ -77,7 +77,14 @@ def main():
     from projects.sa2va.hf.models.configuration_sa2va_chat import Sa2VAChatConfig
     from projects.sa2va.hf.models.modeling_sa2va_chat import Sa2VAChatModel
 
-    if 'qwen3' in cfg.path.lower():
+    # SAM3 grounding encoder uses a dedicated HF template folder (SAM3 tracker +
+    # DirectResize(1008)); detect it from the config file name.
+    is_sam3 = 'sam3' in osp.basename(args.config).lower()
+
+    if is_sam3:
+        from projects.sa2va.hf.models_qwen3vl_sam3.configuration_sa2va_chat import Sa2VAChatConfigQwen
+        from projects.sa2va.hf.models_qwen3vl_sam3.modeling_sa2va_qwen import Sa2VAChatModelQwen
+    elif 'qwen3' in cfg.path.lower():
         from projects.sa2va.hf.models_qwen3vl.configuration_sa2va_chat import Sa2VAChatConfigQwen
         from projects.sa2va.hf.models_qwen3vl.modeling_sa2va_qwen import Sa2VAChatModelQwen
     else:
@@ -131,7 +138,7 @@ def main():
         sa2va_hf_config = Sa2VAChatConfigQwen(**config_dict)
         sa2va_hf_config.text_config.tie_word_embeddings = False
 
-        sa2va_hf_config.save_pretrained("./tmp/sa2va_config_test_qwen")
+        sa2va_hf_config.save_pretrained("workspace/tmp/sa2va_config_test_qwen")
 
     else:
         name_map = {'mllm.model.': '', '.gamma': '.g_weight'}
@@ -165,7 +172,7 @@ def main():
     if args.save_path is None:
         args.save_path = f"./{os.path.dirname(args.pth_model)}_{iter_str}_hf"
     
-    sa2va_hf_config.save_pretrained("./tmp/sa2va_config_test")
+    sa2va_hf_config.save_pretrained("workspace/tmp/sa2va_config_test")
 
     hf_sa2va_model.save_pretrained(args.save_path)
 
@@ -186,7 +193,9 @@ def main():
 
     # copy the files
     if 'qwen' in arch_type:
-        if 'qwen3' in cfg.path.lower():
+        if is_sam3:
+            os.system(f"cp -pr ./projects/sa2va/hf/models_qwen3vl_sam3/* {args.save_path}")
+        elif 'qwen3' in cfg.path.lower():
             os.system(f"cp -pr ./projects/sa2va/hf/models_qwen3vl/* {args.save_path}")
         else:
             os.system(f"cp -pr ./projects/sa2va/hf/models_qwen2_5_vl/* {args.save_path}")

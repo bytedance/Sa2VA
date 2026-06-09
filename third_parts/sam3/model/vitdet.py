@@ -546,10 +546,14 @@ class Attention(nn.Module):
             cls_freqs_cis = torch.polar(torch.ones_like(t), t)[None, :]
             freqs_cis = torch.cat([cls_freqs_cis, freqs_cis], dim=0)
 
-        self.register_buffer("freqs_cis", freqs_cis)
+        # Non-persistent: these RoPE tables are recomputed deterministically at
+        # init, so they should not enter state_dict. `freqs_cis` is complex64 and
+        # cannot be serialized by safetensors (HF save), and persisting it would
+        # also make the converted state-dict keys mismatch the HF model.
+        self.register_buffer("freqs_cis", freqs_cis, persistent=False)
         if self.use_rope_real:
-            self.register_buffer("freqs_cis_real", freqs_cis.real)
-            self.register_buffer("freqs_cis_imag", freqs_cis.imag)
+            self.register_buffer("freqs_cis_real", freqs_cis.real, persistent=False)
+            self.register_buffer("freqs_cis_imag", freqs_cis.imag, persistent=False)
 
     def _apply_rope(self, q, k) -> Tuple[Tensor, Tensor]:
         if not self.use_rope:

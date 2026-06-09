@@ -458,6 +458,79 @@ class Sam3TrackerPredictor(Sam3TrackerBase):
         low_res_masks = None  # not needed by the demo
         return frame_idx, obj_ids, low_res_masks, video_res_masks
 
+    def add_language_embd(
+        self,
+        inference_state,
+        frame_idx,
+        obj_id,
+        language_embd,
+        inference=False,
+    ):
+        """Extension: prompt the SAM3 mask decoder with an LLM `[SEG]` embedding.
+
+        Mirrors `add_new_mask`/`add_new_points_or_box` but feeds `language_embd`
+        instead of point/mask prompts (see `projects/sa2va/hf/models_qwen3vl/sam2.py`).
+        """
+        obj_idx = self._obj_id_to_idx(inference_state, obj_id)
+
+        is_init_cond_frame = frame_idx not in inference_state["frames_already_tracked"]
+        # whether to track in reverse time order
+        if is_init_cond_frame:
+            reverse = False
+        else:
+            reverse = inference_state["frames_already_tracked"][frame_idx]["reverse"]
+
+        obj_output_dict = inference_state["output_dict_per_obj"][obj_idx]
+        obj_temp_output_dict = inference_state["temp_output_dict_per_obj"][obj_idx]
+        # Add a frame to conditioning output if it's an initial conditioning frame or
+        # if the model sees all frames receiving prompts as conditioning frames.
+        is_cond = is_init_cond_frame or self.add_all_frames_to_correct_as_cond
+        storage_key = "cond_frame_outputs" if is_cond else "non_cond_frame_outputs"
+
+        # Get any previously predicted mask logits on this object and feed it along with
+        # the language embedding into the SAM mask decoder.
+        prev_sam_mask_logits = None
+        prev_out = obj_temp_output_dict[storage_key].get(frame_idx)
+        if prev_out is None:
+            prev_out = obj_output_dict["cond_frame_outputs"].get(frame_idx)
+            if prev_out is None:
+                prev_out = obj_output_dict["non_cond_frame_outputs"].get(frame_idx)
+
+        if prev_out is not None and prev_out["pred_masks"] is not None:
+            prev_sam_mask_logits = prev_out["pred_masks"].to(inference_state["device"], non_blocking=True)
+            # Clamp the scale of prev_sam_mask_logits to avoid rare numerical issues.
+            prev_sam_mask_logits = torch.clamp(prev_sam_mask_logits, -32.0, 32.0)
+
+        current_out, pred_mask_gpu = self._run_single_frame_inference(
+            inference_state=inference_state,
+            output_dict=obj_output_dict,  # run on the slice of a single object
+            frame_idx=frame_idx,
+            batch_size=1,  # run on the slice of a single object
+            is_init_cond_frame=is_init_cond_frame,
+            point_inputs=None,
+            mask_inputs=None,
+            reverse=reverse,
+            # Skip the memory encoder when adding the prompt; it is run later at the
+            # beginning of `propagate_in_video`.
+            run_mem_encoder=False,
+            prev_sam_mask_logits=prev_sam_mask_logits,
+            # Extension: LLM prompt embedding routed to `_forward_sam_heads`.
+            language_embd=language_embd,
+        )
+        # Add the output to the output dict (to be used as future memory)
+        obj_temp_output_dict[storage_key][frame_idx] = current_out
+
+        obj_ids = inference_state["obj_ids"]
+        if inference:
+            self._consolidate_temp_output_across_obj(
+                inference_state,
+                frame_idx,
+                is_cond=is_cond,
+                run_mem_encoder=False,
+                consolidate_at_video_res=False,
+            )
+        return frame_idx, obj_ids, pred_mask_gpu
+
     def add_new_points(self, *args, **kwargs):
         """Deprecated method. Please use `add_new_points_or_box` instead."""
         return self.add_new_points_or_box(*args, **kwargs)
@@ -740,7 +813,10 @@ class Sam3TrackerPredictor(Sam3TrackerBase):
             input_frames_inds.update(point_inputs_per_frame.keys())
         for mask_inputs_per_frame in inference_state["mask_inputs_per_obj"].values():
             input_frames_inds.update(mask_inputs_per_frame.keys())
-        assert all_consolidated_frame_inds == input_frames_inds
+        # Extension: the LLM language-embedding prompt path (`add_language_embd`)
+        # consolidates frames without registering point/mask inputs, so this
+        # demo-workflow sanity check does not hold. Disabled (mirrors SAM2 HF).
+        # assert all_consolidated_frame_inds == input_frames_inds
         # Record the first interacted frame index (for tracking start)
         if inference_state["first_ann_frame_idx"] is None:
             inference_state["first_ann_frame_idx"] = min(
@@ -1060,6 +1136,7 @@ class Sam3TrackerPredictor(Sam3TrackerBase):
         run_mem_encoder,
         prev_sam_mask_logits=None,
         use_prev_mem_frame=True,
+        language_embd=None,
     ):
         """Run tracking on a single frame based on current inputs and previous memory."""
         # Retrieve correct image features
@@ -1088,6 +1165,7 @@ class Sam3TrackerPredictor(Sam3TrackerBase):
             run_mem_encoder=run_mem_encoder,
             prev_sam_mask_logits=prev_sam_mask_logits,
             use_prev_mem_frame=use_prev_mem_frame,
+            language_embd=language_embd,
         )
 
         # optionally offload the output to CPU memory to save GPU space

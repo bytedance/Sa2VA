@@ -951,6 +951,8 @@ class Sam3TrackerBase(torch.nn.Module):
         # The previously predicted SAM mask logits (which can be fed together with new clicks in demo).
         prev_sam_mask_logits=None,
         use_prev_mem_frame=True,
+        # Extension: LLM prompt embedding to inject into the SAM mask decoder.
+        language_embd=None,
     ):
         current_out = {"point_inputs": point_inputs, "mask_inputs": mask_inputs}
         # High-resolution feature maps for the SAM head, reshape (HW)BC => BCHW
@@ -997,6 +999,7 @@ class Sam3TrackerBase(torch.nn.Module):
                 mask_inputs=mask_inputs,
                 high_res_features=high_res_features,
                 multimask_output=multimask_output,
+                language_embd=language_embd,
             )
         (
             _,
