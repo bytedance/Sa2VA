@@ -53,7 +53,7 @@ def main():
         # --- GCG ---
         gcg_config = eval_configs["GCG"]
         print("\n----- Running GCG evaluation -----")
-        gcg_pred_dir = f"./gcg_pred/{os.path.basename(args.model_path)}"
+        gcg_pred_dir = f"workspace/gcg_pred/{os.path.basename(args.model_path)}"
         script_args_gcg = f"--split={gcg_config['split']} --save_dir={gcg_pred_dir} --data_root={args.data_root}"
         cmd_gcg = ["bash", dist_test_script, gcg_config["script"], args.model_path, args.gpus] + script_args_gcg.split()
         run_command(cmd_gcg)

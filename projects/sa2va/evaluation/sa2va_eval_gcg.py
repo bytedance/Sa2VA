@@ -25,7 +25,7 @@ def parse_args():
         help='Specify a split')
     parser.add_argument(
         '--save_dir',
-        default='./gcg_pred/',
+        default='workspace/gcg_pred/',
         help='save path')
     parser.add_argument(
         '--launcher',

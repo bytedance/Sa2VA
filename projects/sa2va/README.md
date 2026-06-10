@@ -13,6 +13,10 @@
 
 ![Teaser](../../assets/images/teaser.jpg)
 
+## News
+
+- **[2026-06-10]** Added [Sa2VA-Qwen3-VL-4B-SAM3](https://huggingface.co/HarborYuan/Sa2VA-Qwen3-VL-4B-SAM3), a Qwen3-VL-4B variant with a SAM3 grounding encoder.
+
 ## Overview
 
 Sa2VA is the first unified model for the dense grounded understanding of both images and videos. Unlike existing multi-modal large language models, which are often limited to specific modalities and tasks, Sa2VA supports a wide range of image and video tasks, including referring segmentation and conversation, with minimal one-shot instruction tuning. Sa2VA combines SAM-2, a foundation video segmentation model, with LLaVA, an advanced vision-language model, and unifies text, image, and video into a shared LLM token space.
@@ -42,6 +46,7 @@ We provide the following models:
 |  Sa2VA-Qwen2_5-VL-7B	 | [Qwen2.5-VL-7B-Instruct](https://huggingface.co/Qwen/Qwen2.5-VL-7B-Instruct) |  [Qwen2.5-7B](https://huggingface.co/Qwen/Qwen2.5-7B)   | [🤗 link](https://huggingface.co/ByteDance/Sa2VA-Qwen2_5-VL-7B) |
 |  Sa2VA-Qwen3-VL-2B	 | [Qwen3-VL-2B-Instruct](https://huggingface.co/Qwen/Qwen3-VL-2B-Instruct) |  [Qwen3-1.7B](https://huggingface.co/Qwen/Qwen3-1.7B)   | [🤗 link](https://huggingface.co/ByteDance/Sa2VA-Qwen3-VL-2B) |
 |  Sa2VA-Qwen3-VL-4B	 | [Qwen3-VL-4B-Instruct](https://huggingface.co/Qwen/Qwen3-VL-4B-Instruct) |  [Qwen3-4B](https://huggingface.co/Qwen/Qwen3-4B)   | [🤗 link](https://huggingface.co/ByteDance/Sa2VA-Qwen3-VL-4B) |
+|  Sa2VA-Qwen3-VL-4B-SAM3	 | [Qwen3-VL-4B-Instruct](https://huggingface.co/Qwen/Qwen3-VL-4B-Instruct) |  [Qwen3-4B](https://huggingface.co/Qwen/Qwen3-4B)   | [🤗 link](https://huggingface.co/HarborYuan/Sa2VA-Qwen3-VL-4B-SAM3) |
 
 ## Environment
 
@@ -182,7 +187,6 @@ data/
 |   └── sam_v_full # [!important] please download this from sam-2 directly.
 |   └── Ref-SAV.json
 ├── ref_seg
-|   ├── refclef
 |   ├── refcoco
 |   ├── refcoco+
 |   ├── refcocog

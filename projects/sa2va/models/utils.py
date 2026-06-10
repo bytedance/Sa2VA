@@ -64,7 +64,9 @@ def find_seg_indices(text):
     all_seg_indices = [m.start() for m in re.finditer(r'\[SEG\]', text)]
     answer_spans = [(m.start(), m.end()) for m in re.finditer(r'<answer>.*?</answer>', text, re.DOTALL)]
     if len(answer_spans) == 0:
-        return [], []
+        # Non-thinking models emit plain text with no <answer> tag — treat every
+        # [SEG] as an answer segmentation (otherwise all masks are dropped -> IoU 0).
+        return [], list(range(len(all_seg_indices)))
     if len(answer_spans) > 1:
         print(f"Warning: There should be only one <answer> tag in the text. {text}")
         # raise ValueError(f"There should be only one <answer> tag in the text. {text}")

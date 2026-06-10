@@ -37,6 +37,9 @@ class Sa2VAModel(BaseModel):
                  # preprocessor=None,
                  # bs
                  training_bs:int=0,
+                 # grounding-encoder input resolution for the no-mask pseudo data.
+                 # 1024 = SAM2 native; set 1008 for the HF SAM3 tracker.
+                 grounding_img_size:int=1024,
                  ):
         super().__init__()
         if special_tokens is None:
@@ -101,6 +104,7 @@ class Sa2VAModel(BaseModel):
 
         self.template = template
         self.bs = training_bs
+        self.grounding_img_size = grounding_img_size
 
         if self.mllm.use_llm_lora:
             self.mllm.manual_prepare_llm_for_lora()
@@ -203,7 +207,8 @@ class Sa2VAModel(BaseModel):
         return ret_pred_embeddings_list_video, ret_gt_masks_video
 
     def _get_pesudo_data(self, dtype, device):
-        g_pixel_values = torch.zeros((3, 1024, 1024), dtype=dtype, device=device)
+        _sz = self.grounding_img_size
+        g_pixel_values = torch.zeros((3, _sz, _sz), dtype=dtype, device=device)
         g_pixel_values = [g_pixel_values] * self.bs
         frames_per_batch = [1] * self.bs
         gt_masks = torch.zeros((5, 256, 256), dtype=torch.uint8, device=device)
