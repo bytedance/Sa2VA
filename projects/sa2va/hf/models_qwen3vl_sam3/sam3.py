@@ -21,11 +21,11 @@ is built by `build_sam3_tracker` exactly as in training, so the parameter names
 import torch
 import torch.nn as nn
 
-from third_parts.sam3 import build_sam3_tracker as _build_mod
-from third_parts.sam3.build_sam3_tracker import build_sam3_tracker
-from third_parts.sam3.model.memory import CXBlock as _CXBlock
-from third_parts.sam3.model.sam3_tracking_predictor import Sam3TrackerPredictor
-from projects.sa2va.models.extension.sam3_base import Sam3Base
+from . import sam3pkg_build_sam3_tracker as _build_mod
+from .sam3pkg_build_sam3_tracker import build_sam3_tracker
+from .sam3pkg_model_memory import CXBlock as _CXBlock
+from .sam3pkg_model_sam3_tracking_predictor import Sam3TrackerPredictor
+from .sam3pkg_ext_sam3_base import Sam3Base
 
 
 class _CXBlockGWeight(_CXBlock):
