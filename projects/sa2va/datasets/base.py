@@ -27,6 +27,10 @@ class Sa2VADatasetMixin:
     
     IMAGENET_MEAN = (0.485, 0.456, 0.406)
     IMAGENET_STD = (0.229, 0.224, 0.225)
+
+    # OpenAI CLIP normalization, used by the LLaVA-1.5 vision tower (CLIP-ViT-L-336)
+    CLIP_MEAN = (0.48145466, 0.4578275, 0.40821073)
+    CLIP_STD = (0.26862954, 0.26130258, 0.27577711)
     
     def _init_architecture_config(self, arch_type: Literal['intern_vl', 'qwen', 'llava'] = 'intern_vl'):
         """Initialize architecture-specific configurations."""
@@ -87,11 +91,16 @@ class Sa2VADatasetMixin:
     def _init_image_processor(self, preprocessor_config=None):
         """Initialize image processor/transformer."""
         if preprocessor_config is None:
+            if self.arch_type == 'llava':
+                # LLaVA's CLIP vision tower expects OpenAI CLIP normalization
+                mean, std = self.CLIP_MEAN, self.CLIP_STD
+            else:
+                mean, std = self.IMAGENET_MEAN, self.IMAGENET_STD
             self.transformer = T.Compose([
                 T.Lambda(lambda img: img.convert('RGB') if img.mode != 'RGB' else img),
                 T.Resize((self.image_size, self.image_size), interpolation=InterpolationMode.BICUBIC),
                 T.ToTensor(),
-                T.Normalize(mean=self.IMAGENET_MEAN, std=self.IMAGENET_STD)
+                T.Normalize(mean=mean, std=std)
             ])
             self.preprocessor = None
         else:

@@ -91,18 +91,24 @@ def main():
         from projects.sa2va.hf.models_qwen2_5_vl.configuration_sa2va_chat import Sa2VAChatConfigQwen
         from projects.sa2va.hf.models_qwen2_5_vl.modeling_sa2va_qwen import Sa2VAChatModelQwen
 
+    from projects.sa2va.hf.models_llava.configuration_sa2va_chat import Sa2VAChatConfigLlava
+    from projects.sa2va.hf.models_llava.modeling_sa2va_llava import Sa2VAChatModelLlava
+
     arch_type = cfg.model.get('arch_type', 'internvl')
     print("arch_type:", arch_type)
     print(cfg.model)
 
-    if 'qwen' not in arch_type:
-        config = Sa2VAChatConfig.from_pretrained(cfg.path)
-    else:
-        config = Sa2VAChatConfigQwen.from_pretrained(cfg.path)
-    
-    config_dict = config.to_dict()
-    
     if 'qwen' in arch_type:
+        config = Sa2VAChatConfigQwen.from_pretrained(cfg.path)
+    elif arch_type == 'llava':
+        config = Sa2VAChatConfigLlava.from_pretrained(cfg.path)
+    else:
+        config = Sa2VAChatConfig.from_pretrained(cfg.path)
+
+    config_dict = config.to_dict()
+
+    if 'qwen' in arch_type or arch_type == 'llava':
+        # llava: vocab shrinks from the padded 32064 to len(tokenizer) (32007)
         config_dict["text_config"]["vocab_size"] = len(model.mllm.tokenizer)
         config_dict["tie_word_embeddings"] = False
     else:
@@ -140,6 +146,24 @@ def main():
 
         sa2va_hf_config.save_pretrained("workspace/tmp/sa2va_config_test_qwen")
 
+    elif arch_type == 'llava':
+        # llava adapter wraps the whole LlavaForConditionalGeneration as
+        # self.model (like qwen), so use the qwen-style name map
+        name_map = {'mllm.': '', '.gamma': '.g_weight'}
+        for key in all_state_dict.keys():
+            new_key = copy.deepcopy(key)
+            for _text in name_map.keys():
+                new_key = new_key.replace(_text, name_map[_text])
+            all_state_dict_new[new_key] = all_state_dict[key]
+
+        config_dict['auto_map'] = \
+        {'AutoConfig': 'configuration_sa2va_chat.Sa2VAChatConfigLlava',
+         'AutoModel': 'modeling_sa2va_llava.Sa2VAChatModelLlava',
+         'AutoModelForCausalLM': 'modeling_sa2va_llava.Sa2VAChatModelLlava'}
+
+        sa2va_hf_config = Sa2VAChatConfigLlava(**config_dict)
+        sa2va_hf_config.text_config.tie_word_embeddings = False
+
     else:
         name_map = {'mllm.model.': '', '.gamma': '.g_weight'}
 
@@ -159,6 +183,10 @@ def main():
     if 'qwen' in arch_type:
         # for qwen
         hf_sa2va_model = Sa2VAChatModelQwen(
+            sa2va_hf_config, model=model.mllm.model
+        )
+    elif arch_type == 'llava':
+        hf_sa2va_model = Sa2VAChatModelLlava(
             sa2va_hf_config, model=model.mllm.model
         )
     else:
@@ -199,6 +227,8 @@ def main():
             os.system(f"cp -pr ./projects/sa2va/hf/models_qwen3vl/* {args.save_path}")
         else:
             os.system(f"cp -pr ./projects/sa2va/hf/models_qwen2_5_vl/* {args.save_path}")
+    elif arch_type == 'llava':
+        os.system(f"cp -pr ./projects/sa2va/hf/models_llava/* {args.save_path}")
     else:
         os.system(f"cp -pr ./projects/sa2va/hf/models/* {args.save_path}")
 
