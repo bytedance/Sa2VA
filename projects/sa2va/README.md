@@ -15,7 +15,7 @@
 
 ## News
 
-- **[2026-06-15]** Added [Sa2VA-LLaVA-1.5-7B](https://huggingface.co/HarborYuan/Sa2VA-LLaVA-1.5-7B), a LLaVA-1.5-7B (CLIP-ViT-L-336 + Vicuna-7B) variant with a SAM2 grounding encoder, as a LISA-comparable baseline.
+- **[2026-06-15]** Added [Sa2VA-LLaVA-1.5-7B](https://huggingface.co/HarborYuan/Sa2VA-LLaVA-1.5-7B), a LLaVA-1.5-7B (CLIP-ViT-L-336 + Vicuna-7B) variant with a SAM2 grounding encode.
 - **[2026-06-10]** Added [Sa2VA-Qwen3-VL-4B-SAM3](https://huggingface.co/HarborYuan/Sa2VA-Qwen3-VL-4B-SAM3), a Qwen3-VL-4B variant with a SAM3 grounding encoder.
 
 ## Overview
