@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Literal
+from typing import Literal, Optional
 
 import torch
 from .base import Sa2VABaseDataset
@@ -15,9 +15,10 @@ class LLaVADataset(Sa2VABaseDataset):
                  special_tokens=None,
                  image_folder=None,
                  max_length=8192,
-                 arch_type: Literal['intern_vl', 'qwen'] = 'intern_vl',
+                 arch_type: Literal['intern_vl', 'qwen', 'llava'] = 'intern_vl',
                  preprocessor=None,
                  skip_pure_text=False,
+                 single_image_mode: Optional[bool] = None,
                  **kwargs):
 
         # Initialize base class
@@ -34,6 +35,7 @@ class LLaVADataset(Sa2VABaseDataset):
         # Dataset-specific configurations
         self.image_folder = image_folder
         self.skip_pure_text = skip_pure_text
+        self.single_image_mode = single_image_mode
         self.data = self._load_annotations(data_path, image_folder)
 
     def _load_annotations(self, data_path, image_folder=None):
@@ -58,8 +60,11 @@ class LLaVADataset(Sa2VABaseDataset):
                 return None
             
             # Process image using base class method
-            # For LLaVA, typically use single image mode
-            single_image_mode = True if self.preprocessor is not None else False
+            if self.single_image_mode is None:
+                # legacy auto behavior: single image mode iff a preprocessor is set
+                single_image_mode = self.preprocessor is not None
+            else:
+                single_image_mode = self.single_image_mode
             image_data = self._process_single_image(image, single_image_mode)
             out_data_dict.update(image_data)
             

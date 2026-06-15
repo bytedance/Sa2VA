@@ -1,3 +1,18 @@
+# Sa2VA / Qwen2.5-VL-7B with the vendored SAM3 PVS-tracker grounding encoder.
+#
+# Derived from sa2va_qwen25_7b.py. Only the grounding encoder and the SAM input
+# resolution differ:
+#   - grounding_encoder: Sam3TrackerTrainRunner — the SAM3 tracker vendored under
+#     third_parts/sam3 (facebookresearch/sam3), built sam2-style. No transformers
+#     upgrade needed; the repo pin transformers==4.57.1 is untouched.
+#   - SAM input resolution: SAM3's native 1008 (SAM2 used 1024). This drives both
+#     the DirectResize target_length and the no-mask pseudo-data size
+#     (model.grounding_img_size), which must match the model's backbone feature grid.
+#
+# Requirements (verify before launching):
+#   - SAM3 weights at `pretrained/sam3/sam3.pt` (or override via SA2VA_SAM3_PATH).
+#     The released sam3.pt is the assembled model; the runner remaps the tracker
+#     sub-weights — see _load_sam3_checkpoint in models/sam3_train.py.
 from mmengine.hooks import (CheckpointHook, DistSamplerSeedHook, IterTimerHook,
                             LoggerHook, ParamSchedulerHook)
 from mmengine.optim import AmpOptimWrapper, CosineAnnealingLR, LinearLR
@@ -12,7 +27,7 @@ from xtuner.utils import PROMPT_TEMPLATE
 from third_parts.mmdet.models.losses import DiceLoss, CrossEntropyLoss
 from peft import LoraConfig
 
-from projects.sa2va.models import Sa2VAModel, SAM2TrainRunner, DirectResize, InternVLMLLM
+from projects.sa2va.models import Sa2VAModel, Sam3TrackerTrainRunner, DirectResize, InternVLMLLM
 from projects.sa2va.datasets import (
     sa2va_collect_fn, Sa2VA01RefSeg, LLaVADataset, 
     Sa2VA03RefVOS, Sa2VA04VideoQA, Sa2VA05GCGDataset, Sa2VA06VPDataset
@@ -49,6 +64,13 @@ def _load_env(key, default):
 path = _load_env('SA2VA_QWEN25VL_PATH', 'pretrained/qwen25vl/Qwen2.5-VL-7B-Instruct')
 pretrained_pth = None
 
+# SAM3 grounding-encoder input resolution (longest side). SAM3's native tracker
+# size is 1008; override via SA2VA_SAM3_IMG_SIZE if the loaded checkpoint differs.
+sam3_img_size = int(_load_env('SA2VA_SAM3_IMG_SIZE', '1008'))
+# SAM3 tracker checkpoint (the assembled sam3.pt). Path is relative to pretrained/sam3/
+# unless absolute. Override via SA2VA_SAM3_PATH in .env.
+sam3_ckpt = _load_env('SA2VA_SAM3_PATH', 'sam3.pt')
+
 # Data
 template = "qwen_chat"
 prompt_template = PROMPT_TEMPLATE.qwen_chat
@@ -81,7 +103,7 @@ tokenizer = dict(
 
 extra_image_processor = dict(
     type=DirectResize,
-    target_length=1024,
+    target_length=sam3_img_size,
 )
 #######################################################################
 #            PART 2  Model & Tokenizer & Image Processor              #
@@ -89,6 +111,7 @@ extra_image_processor = dict(
 model = dict(
     type=Sa2VAModel,
     training_bs=batch_size,
+    grounding_img_size=sam3_img_size,
     special_tokens=special_tokens,
     pretrained_pth=pretrained_pth,
     loss_sample_points=True,
@@ -112,7 +135,8 @@ model = dict(
     ),
     tokenizer=tokenizer,
     grounding_encoder=dict(
-        type=SAM2TrainRunner,
+        type=Sam3TrackerTrainRunner,
+        ckpt_path=sam3_ckpt,
     ),
     loss_mask=dict(
         type=CrossEntropyLoss,

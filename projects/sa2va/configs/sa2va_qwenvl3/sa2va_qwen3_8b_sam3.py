@@ -1,8 +1,23 @@
+# Sa2VA / Qwen3-VL-4B with the vendored SAM3 PVS-tracker grounding encoder.
+#
+# Derived from sa2va_qwen3_4b.py. Only the grounding encoder and the SAM input
+# resolution differ:
+#   - grounding_encoder: Sam3TrackerTrainRunner — the SAM3 tracker vendored under
+#     third_parts/sam3 (facebookresearch/sam3), built sam2-style. No transformers
+#     upgrade needed; the repo pin transformers==4.57.1 is untouched.
+#   - SAM input resolution: SAM3's native 1008 (SAM2 used 1024). This drives both
+#     the DirectResize target_length and the no-mask pseudo-data size
+#     (model.grounding_img_size), which must match the model's backbone feature grid.
+#
+# Requirements (verify before launching):
+#   - SAM3 weights at `pretrained/sam3/sam3.pt` (or override via SA2VA_SAM3_PATH).
+#     The released sam3.pt is the assembled model; the runner remaps the tracker
+#     sub-weights — see _load_sam3_checkpoint in models/sam3_train.py.
 from mmengine.hooks import (CheckpointHook, DistSamplerSeedHook, IterTimerHook,
                             LoggerHook, ParamSchedulerHook)
 from mmengine.optim import AmpOptimWrapper, CosineAnnealingLR, LinearLR
 from torch.optim import AdamW
-from transformers import AutoTokenizer, Qwen2_5_VLProcessor
+from transformers import AutoTokenizer, Qwen3VLProcessor
 
 from xtuner.dataset.samplers import LengthGroupedSampler
 from xtuner.engine.runner import TrainLoop
@@ -12,14 +27,14 @@ from xtuner.utils import PROMPT_TEMPLATE
 from third_parts.mmdet.models.losses import DiceLoss, CrossEntropyLoss
 from peft import LoraConfig
 
-from projects.sa2va.models import Sa2VAModel, SAM2TrainRunner, DirectResize, InternVLMLLM
+from projects.sa2va.models import Sa2VAModel, Sam3TrackerTrainRunner, DirectResize, InternVLMLLM
 from projects.sa2va.datasets import (
-    sa2va_collect_fn, Sa2VA01RefSeg, LLaVADataset, 
+    sa2va_collect_fn, Sa2VA01RefSeg, LLaVADataset,
     Sa2VA03RefVOS, Sa2VA04VideoQA, Sa2VA05GCGDataset, Sa2VA06VPDataset
 )
 
 from projects.sa2va.datasets.data_utils import ConcatDatasetSa2VA
-from projects.sa2va.models.mllm.qwenvl import Qwen2_5_VL
+from projects.sa2va.models.mllm.qwen3vl import Qwen3VL
 
 #######################################################################
 #                          PART 1  Settings                           #
@@ -45,9 +60,17 @@ def _load_env(key, default):
 
 
 # Model
-# Base MLLM path: override via SA2VA_QWEN25VL_PATH in .env.
-path = _load_env('SA2VA_QWEN25VL_PATH', 'pretrained/qwen25vl/Qwen2.5-VL-7B-Instruct')
+# Qwen3-VL-8B variant: hardcode the base MLLM path so it is independent of the
+# shared SA2VA_QWEN3VL_PATH in .env (which points at the 4B model).
+path = 'pretrained/qwen3vl/Qwen3-VL-8B-Instruct'
 pretrained_pth = None
+
+# SAM3 grounding-encoder input resolution (longest side). SAM3's native tracker
+# size is 1008; override via SA2VA_SAM3_IMG_SIZE if the loaded checkpoint differs.
+sam3_img_size = int(_load_env('SA2VA_SAM3_IMG_SIZE', '1008'))
+# SAM3 tracker checkpoint (the assembled sam3.pt). Path is relative to pretrained/sam3/
+# unless absolute. Override via SA2VA_SAM3_PATH in .env.
+sam3_ckpt = _load_env('SA2VA_SAM3_PATH', 'sam3.pt')
 
 # Data
 template = "qwen_chat"
@@ -55,8 +78,9 @@ prompt_template = PROMPT_TEMPLATE.qwen_chat
 max_length = 8192
 
 # Scheduler & Optimizer
-batch_size = 4  # hardcoded: eff batch 128 on 32 gpu (aligned with 4B), independent of .env
-accumulative_counts = 1  # hardcoded
+batch_size = 4  # per_device; hardcoded for this variant
+# Effective batch = batch_size * accum * num_gpus = 4 * 1 * 32 = 128 (recipe).
+accumulative_counts = 1
 dataloader_num_workers = 16
 max_epochs = 1
 optim_type = AdamW
@@ -81,7 +105,7 @@ tokenizer = dict(
 
 extra_image_processor = dict(
     type=DirectResize,
-    target_length=1024,
+    target_length=sam3_img_size,
 )
 #######################################################################
 #            PART 2  Model & Tokenizer & Image Processor              #
@@ -89,13 +113,14 @@ extra_image_processor = dict(
 model = dict(
     type=Sa2VAModel,
     training_bs=batch_size,
+    grounding_img_size=sam3_img_size,
     special_tokens=special_tokens,
     pretrained_pth=pretrained_pth,
     loss_sample_points=True,
     frozen_sam2_decoder=False,
     arch_type='qwen',
     mllm=dict(
-        type=Qwen2_5_VL,
+        type=Qwen3VL,
         model_path=path,
         freeze_llm=True,
         freeze_visual_encoder=True,
@@ -112,7 +137,8 @@ model = dict(
     ),
     tokenizer=tokenizer,
     grounding_encoder=dict(
-        type=SAM2TrainRunner,
+        type=Sam3TrackerTrainRunner,
+        ckpt_path=sam3_ckpt,
     ),
     loss_mask=dict(
         type=CrossEntropyLoss,
@@ -133,9 +159,11 @@ model = dict(
 #                      PART 3  Dataset & Dataloader                   #
 #######################################################################
 
+# Data root: override via SA2VA_DATA_ROOT in .env.
 DATA_ROOT = _load_env('SA2VA_DATA_ROOT', './data/')
 VIDEO_DATA_ROOT = DATA_ROOT + 'video_datas/'
-# Ref-SAV needs Meta's SA-V (sam_v_full); enable via SA2VA_INCLUDE_REFSAV=1 in .env.
+# Ref-SAV needs Meta's SA-V (sam_v_full), not in the standard download.
+# Set SA2VA_INCLUDE_REFSAV=1 in .env once SA-V is available locally.
 INCLUDE_REFSAV = _load_env('SA2VA_INCLUDE_REFSAV', '0')
 
 sa2va_default_dataset_configs=dict(
@@ -146,7 +174,7 @@ sa2va_default_dataset_configs=dict(
     max_length=max_length,
     arch_type='qwen',
     preprocessor=dict(
-        type=Qwen2_5_VLProcessor.from_pretrained,
+        type=Qwen3VLProcessor.from_pretrained,
         pretrained_model_name_or_path=path,
         trust_remote_code=True,
     )
@@ -160,7 +188,7 @@ sa2va_qa_default_dataset_configs=dict(
     max_length=max_length,
     arch_type='qwen',
     preprocessor=dict(
-        type=Qwen2_5_VLProcessor.from_pretrained,
+        type=Qwen3VLProcessor.from_pretrained,
         pretrained_model_name_or_path=path,
         trust_remote_code=True,
     )
@@ -253,8 +281,9 @@ sa2va_data_03_refvos_configs = [
     ),
 ]
 
-# Ref-SAV needs the SA-V (sam_v_full) video frames from Meta, not in the standard
-# download. Enable by setting SA2VA_INCLUDE_REFSAV=1 in .env.
+# Ref-SAV needs the SA-V (sam_v_full) video frames from Meta, which are not part of
+# the Sa2VA-Training download. Enable it by setting SA2VA_INCLUDE_REFSAV=1 in .env.
+# SA-V: https://ai.meta.com/datasets/segment-anything-video/
 if INCLUDE_REFSAV not in ('0', '', 'false', 'False'):
     sa2va_data_03_refvos_configs.append(
         dict(

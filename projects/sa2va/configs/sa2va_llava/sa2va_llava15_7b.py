@@ -2,7 +2,7 @@ from mmengine.hooks import (CheckpointHook, DistSamplerSeedHook, IterTimerHook,
                             LoggerHook, ParamSchedulerHook)
 from mmengine.optim import AmpOptimWrapper, CosineAnnealingLR, LinearLR
 from torch.optim import AdamW
-from transformers import AutoTokenizer, Qwen2_5_VLProcessor
+from transformers import AutoTokenizer
 
 from xtuner.dataset.samplers import LengthGroupedSampler
 from xtuner.engine.runner import TrainLoop
@@ -12,14 +12,14 @@ from xtuner.utils import PROMPT_TEMPLATE
 from third_parts.mmdet.models.losses import DiceLoss, CrossEntropyLoss
 from peft import LoraConfig
 
-from projects.sa2va.models import Sa2VAModel, SAM2TrainRunner, DirectResize, InternVLMLLM
+from projects.sa2va.models import Sa2VAModel, SAM2TrainRunner, DirectResize
 from projects.sa2va.datasets import (
-    sa2va_collect_fn, Sa2VA01RefSeg, LLaVADataset, 
+    sa2va_collect_fn, Sa2VA01RefSeg, LLaVADataset,
     Sa2VA03RefVOS, Sa2VA04VideoQA, Sa2VA05GCGDataset, Sa2VA06VPDataset
 )
 
 from projects.sa2va.datasets.data_utils import ConcatDatasetSa2VA
-from projects.sa2va.models.mllm.qwenvl import Qwen2_5_VL
+from projects.sa2va.models.mllm.llava import LlavaVLM
 
 #######################################################################
 #                          PART 1  Settings                           #
@@ -45,18 +45,25 @@ def _load_env(key, default):
 
 
 # Model
-# Base MLLM path: override via SA2VA_QWEN25VL_PATH in .env.
-path = _load_env('SA2VA_QWEN25VL_PATH', 'pretrained/qwen25vl/Qwen2.5-VL-7B-Instruct')
+# LLaVA-1.5-7B (CLIP-ViT-L-336 + Vicuna-7B), the same backbone family as LISA,
+# for backbone-controlled comparisons. Override via SA2VA_LLAVA15_PATH in .env.
+# Download: huggingface-cli download llava-hf/llava-1.5-7b-hf \
+#   --local-dir pretrained/llava/llava-1.5-7b-hf
+path = _load_env('SA2VA_LLAVA15_PATH', 'pretrained/llava/llava-1.5-7b-hf')
 pretrained_pth = None
 
 # Data
-template = "qwen_chat"
-prompt_template = PROMPT_TEMPLATE.qwen_chat
-max_length = 8192
+template = "vicuna"
+prompt_template = PROMPT_TEMPLATE.vicuna
+# Vicuna-7b-v1.5 context limit is 4096 (max_position_embeddings); do not raise.
+# Worst case: RefVOS/VideoQA 5 frames x 576 image tokens + text ~ 3000 tokens.
+max_length = 4096
 
 # Scheduler & Optimizer
-batch_size = 4  # hardcoded: eff batch 128 on 32 gpu (aligned with 4B), independent of .env
-accumulative_counts = 1  # hardcoded
+batch_size = int(_load_env('SA2VA_BS', '4'))  # per_device; override via SA2VA_BS in .env
+# Grad-accum: override via SA2VA_ACCUM in .env. Effective batch = batch_size * accum * num_gpus.
+# Default recipe = 128 (bs4 * accum4 * 8gpu).
+accumulative_counts = int(_load_env('SA2VA_ACCUM', '4'))
 dataloader_num_workers = 16
 max_epochs = 1
 optim_type = AdamW
@@ -71,6 +78,8 @@ warmup_ratio = 0.05
 save_steps = 2000
 save_total_limit = 2  # Maximum checkpoints to keep (-1 means unlimited)
 
+# NOTE: do NOT add '<image>' here — it already exists in the llava tokenizer
+# (id 32000) and is the image-feature placeholder. These five get ids 32002+.
 special_tokens = ['[SEG]', '<p>', '</p>', '<vp>', '</vp>']
 
 tokenizer = dict(
@@ -93,9 +102,9 @@ model = dict(
     pretrained_pth=pretrained_pth,
     loss_sample_points=True,
     frozen_sam2_decoder=False,
-    arch_type='qwen',
+    arch_type='llava',
     mllm=dict(
-        type=Qwen2_5_VL,
+        type=LlavaVLM,
         model_path=path,
         freeze_llm=True,
         freeze_visual_encoder=True,
@@ -138,18 +147,18 @@ VIDEO_DATA_ROOT = DATA_ROOT + 'video_datas/'
 # Ref-SAV needs Meta's SA-V (sam_v_full); enable via SA2VA_INCLUDE_REFSAV=1 in .env.
 INCLUDE_REFSAV = _load_env('SA2VA_INCLUDE_REFSAV', '0')
 
+# No `preprocessor` key: llava uses the torchvision transformer path
+# (336x336 resize + CLIP mean/std, see Sa2VADatasetMixin._init_image_processor).
+# single_image_mode=True so every image is exactly 1x(3,336,336) -> 576 tokens,
+# matching HF llava's hard token/feature count check.
 sa2va_default_dataset_configs=dict(
     tokenizer=tokenizer,
     special_tokens=special_tokens,
     extra_image_processor=extra_image_processor,
     prompt_template=prompt_template,
     max_length=max_length,
-    arch_type='qwen',
-    preprocessor=dict(
-        type=Qwen2_5_VLProcessor.from_pretrained,
-        pretrained_model_name_or_path=path,
-        trust_remote_code=True,
-    )
+    arch_type='llava',
+    single_image_mode=True,
 )
 
 # this is for datasets without masks
@@ -158,13 +167,19 @@ sa2va_qa_default_dataset_configs=dict(
     special_tokens=special_tokens,
     prompt_template=prompt_template,
     max_length=max_length,
-    arch_type='qwen',
-    preprocessor=dict(
-        type=Qwen2_5_VLProcessor.from_pretrained,
-        pretrained_model_name_or_path=path,
-        trust_remote_code=True,
-    )
+    arch_type='llava',
+    single_image_mode=True,
 )
+
+# video datasets go through _process_multiple_images (no single-image knob)
+sa2va_video_dataset_configs = {
+    k: v for k, v in sa2va_default_dataset_configs.items()
+    if k != 'single_image_mode'
+}
+sa2va_qa_video_dataset_configs = {
+    k: v for k, v in sa2va_qa_default_dataset_configs.items()
+    if k != 'single_image_mode'
+}
 
 ######################### ImageRefSeg ##################################
 RES_ROOT = DATA_ROOT + 'ref_seg/'
@@ -229,7 +244,7 @@ sa2va_data_03_refvos_configs = [
         mask_file=VIDEO_DATA_ROOT + 'revos/' + 'mask_dict.json',
         repeats=10,
         dataset_type='default',
-        **sa2va_default_dataset_configs
+        **sa2va_video_dataset_configs
     ),
     dict(
         type=Sa2VA03RefVOS,
@@ -239,7 +254,7 @@ sa2va_data_03_refvos_configs = [
         mask_file=VIDEO_DATA_ROOT + 'mevis/train/mask_dict.json',
         repeats=4,
         dataset_type='default',
-        **sa2va_default_dataset_configs
+        **sa2va_video_dataset_configs
     ),
     dict(
         type=Sa2VA03RefVOS,
@@ -249,7 +264,7 @@ sa2va_data_03_refvos_configs = [
         mask_file=VIDEO_DATA_ROOT + 'rvos/mask_dict.pkl',
         repeats=4,
         dataset_type='refytvos',
-        **sa2va_default_dataset_configs
+        **sa2va_video_dataset_configs
     ),
 ]
 
@@ -264,7 +279,7 @@ if INCLUDE_REFSAV not in ('0', '', 'false', 'False'):
             expression_file=VIDEO_DATA_ROOT + 'Ref-SAV.json',
             repeats=4,
             dataset_type='refsav',
-            **sa2va_default_dataset_configs
+            **sa2va_video_dataset_configs
         )
     )
 
@@ -277,7 +292,7 @@ sa2va_data_04_videoqa_configs = [
         json_file=VIDEO_DATA_ROOT + 'chat_univi/video_chat.json',
         sampled_frames=5,
         repeats=1,
-        **sa2va_qa_default_dataset_configs,
+        **sa2va_qa_video_dataset_configs,
     )
 ]
 
@@ -321,33 +336,6 @@ sa2va_data_05_gcg_configs = [
     )
 ]
 
-
-######################### VP ##################################
-data_osprey_image_folders = [
-    DATA_ROOT + 'osprey-724k/coco/train2014/',
-    DATA_ROOT + 'osprey-724k/coco/val2014/',
-    DATA_ROOT + 'osprey-724k/coco/train2017/',
-    DATA_ROOT + 'osprey-724k/coco/val2017/',
-]
-sa2va_data_06_vp_configs = [
-    dict(
-        type=Sa2VA06VPDataset,
-        name='Osprey_01_conv',
-        dataset_type='conversation',
-        image_folder=data_osprey_image_folders,
-        data_path=DATA_ROOT + 'osprey-724k/Osprey-724K/osprey_conversation.json',
-        **sa2va_qa_default_dataset_configs
-    ),
-    dict(
-        type=Sa2VA06VPDataset,
-        name='Osprey_02_description',
-        dataset_type='description',
-        image_folder=data_osprey_image_folders,
-        data_path=DATA_ROOT + 'osprey-724k/Osprey-724K/osprey_detail_description.json',
-        **sa2va_qa_default_dataset_configs
-    )
-]
-
 train_dataset = dict(
     type=ConcatDatasetSa2VA, datasets=[
         *sa2va_data_01_refseg_configs,
@@ -355,8 +343,7 @@ train_dataset = dict(
         *sa2va_data_03_refvos_configs,
         *sa2va_data_04_videoqa_configs,
         *sa2va_data_05_gcg_configs,
-        # remove vp due to not supported yet
-        # *sa2va_data_06_vp_configs
+        # remove vp due to not supported yet (vp tokens unsupported for llava)
     ]
 )
 train_dataloader = dict(

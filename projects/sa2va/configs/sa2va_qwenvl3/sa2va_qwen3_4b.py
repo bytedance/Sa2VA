@@ -24,8 +24,29 @@ from projects.sa2va.models.mllm.qwen3vl import Qwen3VL
 #######################################################################
 #                          PART 1  Settings                           #
 #######################################################################
+
+
+def _load_env(key, default):
+    """Read KEY from the repo-root .env (run from the repo root).
+
+    Uses only builtins so it works under mmengine's lazy config parsing
+    (which forbids calling functions on imported modules such as ``os``).
+    """
+    try:
+        with open('.env') as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#') and \
+                        line.split('=', 1)[0].strip() == key:
+                    return line.split('=', 1)[1].strip()
+    except OSError:
+        pass
+    return default
+
+
 # Model
-path = 'Qwen/Qwen3-VL-4B-Instruct'
+# Base MLLM path: override via SA2VA_QWEN3VL_PATH in .env.
+path = _load_env('SA2VA_QWEN3VL_PATH', 'pretrained/qwen3vl/Qwen3-VL-4B-Instruct')
 pretrained_pth = None
 
 # Data
@@ -34,8 +55,10 @@ prompt_template = PROMPT_TEMPLATE.qwen_chat
 max_length = 8192
 
 # Scheduler & Optimizer
-batch_size = 1  # per_device
-accumulative_counts = 8 # on 16 gpus
+batch_size = int(_load_env('SA2VA_BS', '1'))  # per_device; override via SA2VA_BS in .env
+# Grad-accum: override via SA2VA_ACCUM in .env. Effective batch = batch_size * accum * num_gpus.
+# Original recipe = 128 (bs1 * accum8 * 16gpu); on 32 gpus set SA2VA_ACCUM=4 to keep 128.
+accumulative_counts = int(_load_env('SA2VA_ACCUM', '8'))
 dataloader_num_workers = 16
 max_epochs = 1
 optim_type = AdamW
@@ -112,8 +135,12 @@ model = dict(
 #                      PART 3  Dataset & Dataloader                   #
 #######################################################################
 
-DATA_ROOT = './data/'
+# Data root: override via SA2VA_DATA_ROOT in .env.
+DATA_ROOT = _load_env('SA2VA_DATA_ROOT', './data/')
 VIDEO_DATA_ROOT = DATA_ROOT + 'video_datas/'
+# Ref-SAV needs Meta's SA-V (sam_v_full), not in the standard download.
+# Set SA2VA_INCLUDE_REFSAV=1 in .env once SA-V is available locally.
+INCLUDE_REFSAV = _load_env('SA2VA_INCLUDE_REFSAV', '0')
 
 sa2va_default_dataset_configs=dict(
     tokenizer=tokenizer,
@@ -228,16 +255,23 @@ sa2va_data_03_refvos_configs = [
         dataset_type='refytvos',
         **sa2va_default_dataset_configs
     ),
-    dict(
-        type=Sa2VA03RefVOS,
-        name='Ref-SAV',
-        image_folder=VIDEO_DATA_ROOT + 'sam_v_full/',
-        expression_file=VIDEO_DATA_ROOT + 'Ref-SAV.json',
-        repeats=4,
-        dataset_type='refsav',
-        **sa2va_default_dataset_configs
-    )
 ]
+
+# Ref-SAV needs the SA-V (sam_v_full) video frames from Meta, which are not part of
+# the Sa2VA-Training download. Enable it by setting SA2VA_INCLUDE_REFSAV=1 in .env.
+# SA-V: https://ai.meta.com/datasets/segment-anything-video/
+if INCLUDE_REFSAV not in ('0', '', 'false', 'False'):
+    sa2va_data_03_refvos_configs.append(
+        dict(
+            type=Sa2VA03RefVOS,
+            name='Ref-SAV',
+            image_folder=VIDEO_DATA_ROOT + 'sam_v_full/',
+            expression_file=VIDEO_DATA_ROOT + 'Ref-SAV.json',
+            repeats=4,
+            dataset_type='refsav',
+            **sa2va_default_dataset_configs
+        )
+    )
 
 ######################### VideoQA ##################################
 sa2va_data_04_videoqa_configs = [
