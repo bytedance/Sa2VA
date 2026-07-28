@@ -1,4 +1,4 @@
-# Sa2VA: Marrying SAM2 with LLaVA for Dense Grounded Understanding of Images and Videos
+# Sa2VA: Marrying SAM2 with LLaVA for Dense Grounded Understanding of Images and Videos (IEEE TPAMI 2026)
 
 [\[🏠 Sa2VA\]](https://lxtgh.github.io/project/sa2va)  [\[📜 arXiv\]](https://arxiv.org/abs/2501.04001) [\[🤗 HuggingFace\]](https://huggingface.co/collections/ByteDance/sa2va-model-zoo-677e3084d71b5f108d00e093) [\[Gradio Demo (HuggingFace Offical)\]](https://huggingface.co/spaces/fffiloni/Sa2VA-simple-demo) [\[🤖 Replicate Demo\]](https://replicate.com/bytedance)
 
@@ -15,6 +15,7 @@
 
 ## News
 
+- **[2026-07-28]** 🎉 Sa2VA is accepted to **IEEE TPAMI 2026**!
 - **[2026-06-15]** Added [Sa2VA-LLaVA-1.5-7B](https://huggingface.co/HarborYuan/Sa2VA-LLaVA-1.5-7B), a LLaVA-1.5-7B (CLIP-ViT-L-336 + Vicuna-7B) variant with a SAM2 grounding encode.
 - **[2026-06-10]** Added [Sa2VA-Qwen3-VL-4B-SAM3](https://huggingface.co/HarborYuan/Sa2VA-Qwen3-VL-4B-SAM3), a Qwen3-VL-4B variant with a SAM3 grounding encoder.
 
@@ -279,7 +280,7 @@ If you find this project useful, please consider citing:
 @article{sa2va,
   title={Sa2VA: Marrying SAM2 with LLaVA for Dense Grounded Understanding of Images and Videos},
   author={Yuan, Haobo and Li, Xiangtai and Zhang, Tao and Sun, Yueyi and Huang, Zilong and Xu, Shilin and Ji, Shunping and Tong, Yunhai and Qi, Lu and Feng, Jiashi and Yang, Ming-Hsuan},
-  journal={arXiv pre-print},
-  year={2025}
+  journal={IEEE TPAMI},
+  year={2026}
 }
 ```

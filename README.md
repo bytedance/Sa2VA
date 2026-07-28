@@ -6,7 +6,7 @@
 
 ## Projects
 
-### 🧠 [Sa2VA](./projects/sa2va/README.md) — Marrying SAM2 with LLaVA (T-PAMI 2026)
+### 🧠 [Sa2VA](./projects/sa2va/README.md) — Marrying SAM2 with LLaVA (IEEE TPAMI 2026)
 *Haobo Yuan, Xiangtai Li, Tao Zhang, Yueyi Sun, Zilong Huang, Shilin Xu, Shunping Ji, Yunhai Tong, Lu Qi, Jiashi Feng, Ming-Hsuan Yang*
 
 The core unified model: SAM-2 + MLLM for referring segmentation, grounded conversation, visual prompting, and image/video chat. Supports InternVL2.5/3 and Qwen2.5-VL/Qwen3-VL backbones.
@@ -65,8 +65,8 @@ If you find this repository useful, please consider citing the relevant papers:
 @article{sa2va,
   title={Sa2VA: Marrying SAM2 with LLaVA for Dense Grounded Understanding of Images and Videos},
   author={Yuan, Haobo and Li, Xiangtai and Zhang, Tao and Sun, Yueyi and Huang, Zilong and Xu, Shilin and Ji, Shunping and Tong, Yunhai and Qi, Lu and Feng, Jiashi and Yang, Ming-Hsuan},
-  journal={arXiv pre-print},
-  year={2025}
+  journal={IEEE TPAMI},
+  year={2026}
 }
 
 @article{yuan2025vrt,
