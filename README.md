@@ -6,7 +6,7 @@
 
 ## Projects
 
-### 🧠 [Sa2VA](./projects/sa2va/README.md) — Marrying SAM2 with LLaVA
+### 🧠 [Sa2VA](./projects/sa2va/README.md) — Marrying SAM2 with LLaVA (T-PAMI 2026)
 *Haobo Yuan, Xiangtai Li, Tao Zhang, Yueyi Sun, Zilong Huang, Shilin Xu, Shunping Ji, Yunhai Tong, Lu Qi, Jiashi Feng, Ming-Hsuan Yang*
 
 The core unified model: SAM-2 + MLLM for referring segmentation, grounded conversation, visual prompting, and image/video chat. Supports InternVL2.5/3 and Qwen2.5-VL/Qwen3-VL backbones.
