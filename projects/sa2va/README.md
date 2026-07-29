@@ -16,8 +16,8 @@
 ## News
 
 - **[2026-07-28]** 🎉 Sa2VA is accepted to **IEEE TPAMI 2026**!
-- **[2026-06-15]** Added [Sa2VA-LLaVA-1.5-7B](https://huggingface.co/HarborYuan/Sa2VA-LLaVA-1.5-7B), a LLaVA-1.5-7B (CLIP-ViT-L-336 + Vicuna-7B) variant with a SAM2 grounding encode.
-- **[2026-06-10]** Added [Sa2VA-Qwen3-VL-4B-SAM3](https://huggingface.co/HarborYuan/Sa2VA-Qwen3-VL-4B-SAM3), a Qwen3-VL-4B variant with a SAM3 grounding encoder.
+- **[2026-06-15]** Added [Sa2VA-LLaVA-1.5-7B](https://huggingface.co/ByteDance/Sa2VA-LLaVA-1.5-7B), a LLaVA-1.5-7B (CLIP-ViT-L-336 + Vicuna-7B) variant with a SAM2 grounding encode.
+- **[2026-06-10]** Added [Sa2VA-Qwen3-VL-4B-SAM3](https://huggingface.co/ByteDance/Sa2VA-Qwen3-VL-4B-SAM3), a Qwen3-VL-4B variant with a SAM3 grounding encoder.
 
 ## Overview
 
@@ -48,8 +48,8 @@ We provide the following models:
 |  Sa2VA-Qwen2_5-VL-7B	 | [Qwen2.5-VL-7B-Instruct](https://huggingface.co/Qwen/Qwen2.5-VL-7B-Instruct) |  [Qwen2.5-7B](https://huggingface.co/Qwen/Qwen2.5-7B)   | [🤗 link](https://huggingface.co/ByteDance/Sa2VA-Qwen2_5-VL-7B) |
 |  Sa2VA-Qwen3-VL-2B	 | [Qwen3-VL-2B-Instruct](https://huggingface.co/Qwen/Qwen3-VL-2B-Instruct) |  [Qwen3-1.7B](https://huggingface.co/Qwen/Qwen3-1.7B)   | [🤗 link](https://huggingface.co/ByteDance/Sa2VA-Qwen3-VL-2B) |
 |  Sa2VA-Qwen3-VL-4B	 | [Qwen3-VL-4B-Instruct](https://huggingface.co/Qwen/Qwen3-VL-4B-Instruct) |  [Qwen3-4B](https://huggingface.co/Qwen/Qwen3-4B)   | [🤗 link](https://huggingface.co/ByteDance/Sa2VA-Qwen3-VL-4B) |
-|  Sa2VA-Qwen3-VL-4B-SAM3	 | [Qwen3-VL-4B-Instruct](https://huggingface.co/Qwen/Qwen3-VL-4B-Instruct) |  [Qwen3-4B](https://huggingface.co/Qwen/Qwen3-4B)   | [🤗 link](https://huggingface.co/HarborYuan/Sa2VA-Qwen3-VL-4B-SAM3) |
-|  Sa2VA-LLaVA-1.5-7B	 | [LLaVA-1.5-7B](https://huggingface.co/llava-hf/llava-1.5-7b-hf) |  [Vicuna-7B](https://huggingface.co/lmsys/vicuna-7b-v1.5)   | [🤗 link](https://huggingface.co/HarborYuan/Sa2VA-LLaVA-1.5-7B) |
+|  Sa2VA-Qwen3-VL-4B-SAM3	 | [Qwen3-VL-4B-Instruct](https://huggingface.co/Qwen/Qwen3-VL-4B-Instruct) |  [Qwen3-4B](https://huggingface.co/Qwen/Qwen3-4B)   | [🤗 link](https://huggingface.co/ByteDance/Sa2VA-Qwen3-VL-4B-SAM3) |
+|  Sa2VA-LLaVA-1.5-7B	 | [LLaVA-1.5-7B](https://huggingface.co/llava-hf/llava-1.5-7b-hf) |  [Vicuna-7B](https://huggingface.co/lmsys/vicuna-7b-v1.5)   | [🤗 link](https://huggingface.co/ByteDance/Sa2VA-LLaVA-1.5-7B) |
 
 ## Environment
 
