@@ -1,17 +1,17 @@
 # Pixel LLMs: Pixel-Level Grounded Understanding for Multimodal LLMs
 
-**Pixel LLMs** is a family of projects that bring pixel-level, dense grounded understanding to multimodal LLMs. It is anchored by **Sa2VA** — a unified model that marries SAM-2 with LLaVA for dense grounded understanding of images and videos — together with a growing set of research projects built on top of it.
+**Pixel LLMs** is a family of projects that bring pixel-level, dense grounded understanding to multimodal LLMs. It is anchored by **Sa2VA** — a unified model that marries SAM-2 with MLLMs for dense grounded understanding of images and videos — together with a growing set of research projects built on top of it.
 
 ![Teaser](assets/images/teaser.jpg)
 
 ## Projects
 
-### 🧠 [Sa2VA](./projects/sa2va/README.md) — Marrying SAM2 with LLaVA (IEEE TPAMI 2026)
+### 🧠 [Sa2VA](./projects/sa2va/README.md) — Marrying SAM2 with MLLM (IEEE TPAMI 2026)
 *Haobo Yuan, Xiangtai Li, Tao Zhang, Yueyi Sun, Zilong Huang, Shilin Xu, Shunping Ji, Yunhai Tong, Lu Qi, Jiashi Feng, Ming-Hsuan Yang*
 
 The core unified model: SAM-2 + MLLM for referring segmentation, grounded conversation, visual prompting, and image/video chat. Supports InternVL2.5/3 and Qwen2.5-VL/Qwen3-VL backbones.
 
-📂 [`projects/sa2va`](./projects/sa2va/README.md) · [📜 arXiv](https://arxiv.org/abs/2501.04001) · [🏠 Page](https://lxtgh.github.io/project/sa2va) · [🤗 Models](https://huggingface.co/collections/ByteDance/sa2va-model-zoo-677e3084d71b5f108d00e093)
+📂 [`projects/sa2va`](./projects/sa2va/README.md) · [📕 TPAMI](https://ieeexplore.ieee.org/document/11640960) · [📜 arXiv](https://arxiv.org/abs/2501.04001) · [🏠 Page](https://lxtgh.github.io/project/sa2va) · [🤗 Models](https://huggingface.co/collections/ByteDance/sa2va-model-zoo-677e3084d71b5f108d00e093)
 
 ### 🔍 [VRT](./projects/vrt_sa2va/README.md) — Visual Reasoning Tracer
 *Haobo Yuan, Yueyi Sun, Yanwei Li, Tao Zhang, Xueqing Deng, Henghui Ding, Lu Qi, Anran Wang, Xiangtai Li, Ming-Hsuan Yang*
@@ -63,7 +63,7 @@ If you find this repository useful, please consider citing the relevant papers:
 
 ```bibtex
 @article{sa2va,
-  title={Sa2VA: Marrying SAM2 with LLaVA for Dense Grounded Understanding of Images and Videos},
+  title={Sa2VA: Marrying SAM2 with MLLM for Dense Grounded Understanding of Images and Videos},
   author={Yuan, Haobo and Li, Xiangtai and Zhang, Tao and Sun, Yueyi and Huang, Zilong and Xu, Shilin and Ji, Shunping and Tong, Yunhai and Qi, Lu and Feng, Jiashi and Yang, Ming-Hsuan},
   journal={IEEE TPAMI},
   year={2026}

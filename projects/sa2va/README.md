@@ -1,6 +1,6 @@
-# Sa2VA: Marrying SAM2 with LLaVA for Dense Grounded Understanding of Images and Videos (IEEE TPAMI 2026)
+# Sa2VA: Marrying SAM2 with MLLM for Dense Grounded Understanding of Images and Videos (IEEE TPAMI 2026)
 
-[\[🏠 Sa2VA\]](https://lxtgh.github.io/project/sa2va)  [\[📜 arXiv\]](https://arxiv.org/abs/2501.04001) [\[🤗 HuggingFace\]](https://huggingface.co/collections/ByteDance/sa2va-model-zoo-677e3084d71b5f108d00e093) [\[Gradio Demo (HuggingFace Offical)\]](https://huggingface.co/spaces/fffiloni/Sa2VA-simple-demo) [\[🤖 Replicate Demo\]](https://replicate.com/bytedance)
+[\[🏠 Sa2VA\]](https://lxtgh.github.io/project/sa2va)  [\[📕 TPAMI\]](https://ieeexplore.ieee.org/document/11640960) [\[📜 arXiv\]](https://arxiv.org/abs/2501.04001) [\[🤗 HuggingFace\]](https://huggingface.co/collections/ByteDance/sa2va-model-zoo-677e3084d71b5f108d00e093) [\[Gradio Demo (HuggingFace Offical)\]](https://huggingface.co/spaces/fffiloni/Sa2VA-simple-demo) [\[🤖 Replicate Demo\]](https://replicate.com/bytedance)
 
 
 [**Haobo Yuan**](https://yuanhaobo.me/)<sup>1*</sup> · [**Xiangtai Li**](https://lxtgh.github.io/)<sup>2*&dagger;</sup> · [**Tao Zhang**](https://zhang-tao-whu.github.io/)<sup>2,3*</sup> · [**Yueyi Sun**]()<sup>4</sup> · [**Zilong Huang**](http://speedinghzl.github.io/)<sup>2</sup> · [**Shilin Xu**]()<sup>4</sup> ·[**Shunping Ji**](https://scholar.google.com/citations?user=FjoRmF4AAAAJ&hl=en)<sup>3</sup> ·[**Yunhai Tong**](https://scholar.google.com/citations?user=T4gqdPkAAAAJ&hl=zh-CN)<sup>4</sup> · [**Lu Qi**](https://luqi.info/)<sup>3</sup> · [**Jiashi Feng**](https://scholar.google.com/citations?user=Q8iay0gAAAAJ&hl=en)<sup>2</sup> · [**Ming-Hsuan Yang**](https://faculty.ucmerced.edu/mhyang/)<sup>1</sup>
@@ -15,13 +15,13 @@
 
 ## News
 
-- **[2026-07-28]** 🎉 Sa2VA is accepted to **IEEE TPAMI 2026**!
+- **[2026-07-28]** 🎉 Sa2VA is accepted to **[IEEE TPAMI 2026](https://ieeexplore.ieee.org/document/11640960)**!
 - **[2026-06-15]** Added [Sa2VA-LLaVA-1.5-7B](https://huggingface.co/ByteDance/Sa2VA-LLaVA-1.5-7B), a LLaVA-1.5-7B (CLIP-ViT-L-336 + Vicuna-7B) variant with a SAM2 grounding encode.
 - **[2026-06-10]** Added [Sa2VA-Qwen3-VL-4B-SAM3](https://huggingface.co/ByteDance/Sa2VA-Qwen3-VL-4B-SAM3), a Qwen3-VL-4B variant with a SAM3 grounding encoder.
 
 ## Overview
 
-Sa2VA is the first unified model for the dense grounded understanding of both images and videos. Unlike existing multi-modal large language models, which are often limited to specific modalities and tasks, Sa2VA supports a wide range of image and video tasks, including referring segmentation and conversation, with minimal one-shot instruction tuning. Sa2VA combines SAM-2, a foundation video segmentation model, with LLaVA, an advanced vision-language model, and unifies text, image, and video into a shared LLM token space.
+Sa2VA is the first unified model for the dense grounded understanding of both images and videos. Unlike existing multi-modal large language models, which are often limited to specific modalities and tasks, Sa2VA supports a wide range of image and video tasks, including referring segmentation and conversation, with minimal one-shot instruction tuning. Sa2VA combines SAM-2, a foundation video segmentation model, with an advanced multimodal LLM (MLLM), and unifies text, image, and video into a shared LLM token space.
 
 Sa2VA produces segmentation masks by emitting a special `[SEG]` token from the MLLM; its hidden state is projected into SAM-2's prompt space, which decodes the corresponding mask(s). This single mechanism powers image/video referring segmentation, grounded conversation generation (GCG), and visual prompting, while standard image/video chat is handled by the underlying MLLM. Sa2VA supports multiple MLLM backbones — InternVL2.5, InternVL3, Qwen2.5-VL, and Qwen3-VL.
 
@@ -278,7 +278,7 @@ torchrun --nproc-per-node=8 run.py --data MMBench_DEV_EN SEEDBench_IMG MMStar AI
 If you find this project useful, please consider citing:
 ```bibtex
 @article{sa2va,
-  title={Sa2VA: Marrying SAM2 with LLaVA for Dense Grounded Understanding of Images and Videos},
+  title={Sa2VA: Marrying SAM2 with MLLM for Dense Grounded Understanding of Images and Videos},
   author={Yuan, Haobo and Li, Xiangtai and Zhang, Tao and Sun, Yueyi and Huang, Zilong and Xu, Shilin and Ji, Shunping and Tong, Yunhai and Qi, Lu and Feng, Jiashi and Yang, Ming-Hsuan},
   journal={IEEE TPAMI},
   year={2026}
