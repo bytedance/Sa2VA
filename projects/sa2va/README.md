@@ -265,12 +265,12 @@ We use [sa2va_eval](https://github.com/zhang-tao-whu/sa2va_eval) (a modified ver
 
 **Single-GPU Evaluation Example:**
 ```bash
-python run.py --data MMBench_DEV_EN MME SEEDBench_IMG --model Sa2VA-1B --verbose
+python sa2va_eval/run.py --data MMBench_DEV_EN MME SEEDBench_IMG --model Sa2VA-1B --verbose
 ```
 
 **Multi-GPU Evaluation Example:**
 ```bash
-torchrun --nproc-per-node=8 run.py --data MMBench_DEV_EN SEEDBench_IMG MMStar AI2D_TEST MMMU_DEV_VAL ScienceQA_TEST --model Sa2VA-4B Sa2VA-8B --verbose
+torchrun --nproc-per-node=8 sa2va_eval/run.py --data MMBench_DEV_EN SEEDBench_IMG MMStar AI2D_TEST MMMU_DEV_VAL ScienceQA_TEST --model Sa2VA-4B Sa2VA-8B --verbose
 ```
 </details>
 
