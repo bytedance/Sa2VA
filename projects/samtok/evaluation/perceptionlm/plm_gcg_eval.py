@@ -263,7 +263,7 @@ def main():
                 '',
                 prediction['prediction_masks']
             )
-            results.append(output_text[0])
+            results.append('')
             continue
         generate_ids = model.generate(**inputs, max_new_tokens=256)
         input_length = inputs["input_ids"].shape[1]
