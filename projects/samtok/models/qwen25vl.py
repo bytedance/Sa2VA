@@ -24,6 +24,9 @@ from typing import List, Optional
 from transformers.modeling_outputs import BaseModelOutputWithPast
 from transformers.cache_utils import DynamicCache
 from transformers.models.qwen2_5_vl.modeling_qwen2_5_vl import Qwen2_5_VLModelOutputWithPast
+from transformers.utils import logging
+
+logger = logging.get_logger(__name__)
 
 def prepare_inputs_for_generation_cache(
         self,
