@@ -55,7 +55,7 @@ bash tools/dist.sh train projects/sasasa2va/configs/YOUR_CONFIG NUM_GPUS
 
 Then run the following command to convert pth model to Huggingface format model:
 ```bash
-python projects/sasasa2va/hf/convert_to_hf.py projects/sasasa2va/configs/YOUR_CONFIG --pth-model PATH_TO_PTH_MODEL --save-path PATH_TO_HF_MODEL
+python projects/sasasa2va/hf/convert_to_hf.py projects/sasasa2va/configs/YOUR_CONFIG PATH_TO_PTH_MODEL --save-path PATH_TO_HF_MODEL
 ```
 
 ### Evaluation
