@@ -235,7 +235,7 @@ For other types of data, you may need to customize the dataloader and configurat
 
 Please run the following script to convert:
 ```bash
-python tools/convert_to_hf.py projects/sa2va/configs/sa2va_in30_8b.py --pth-model PATH_TO_PTH_MODEL --save-path PATH_TO_SAVE_FOLDER
+python tools/convert_to_hf.py projects/sa2va/configs/sa2va_in30_8b.py PATH_TO_PTH_MODEL --save-path PATH_TO_SAVE_FOLDER
 ```
 </details>
 
