@@ -677,20 +677,16 @@ def main():
         print_evaluation_summary(final_summary)
 
     else:
-        # evaluator = VERLLMEvaluator(args.model_path, dataset, use_thinking)
-        
-        # # Limit samples for testing if specified
-        # if args.max_samples:
-        #     print(f"Limiting evaluation to {args.max_samples} samples")
-        #     evaluation_samples = dataset.get_evaluation_samples()[:args.max_samples]
-        #     # Temporarily override the dataset method for testing
-        #     dataset.get_evaluation_samples = lambda: evaluation_samples
-        
-        # # Run evaluation
-        # results = evaluator.evaluate_all_samples(output_dir)
-        # print_evaluation_summary(results)
+        dataset = PackedVRTEvalDataset(args.tfrecord_path)
 
-        pass
+        if args.max_samples:
+            print(f"Limiting evaluation to {args.max_samples} samples")
+            evaluation_samples = dataset.get_evaluation_samples()[:args.max_samples]
+            dataset.get_evaluation_samples = lambda: evaluation_samples
+
+        evaluator = VERLLMEvaluator(args.model_path, dataset, use_thinking)
+        results = evaluator.evaluate_all_samples(output_dir)
+        print_evaluation_summary(results)
     
     print("\nEvaluation completed successfully!")
 
