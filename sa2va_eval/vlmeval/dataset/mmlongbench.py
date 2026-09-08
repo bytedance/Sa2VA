@@ -141,12 +141,11 @@ def is_float_equal(reference, prediction, include_percentage: bool = False, is_c
 
 def get_clean_string(s):
     s = str(s).lower().strip()
-    if s.endswith('mile'):
-        s.rstrip('mile').strip()
-    if s.endswith('miles'):
-        s.rstrip('miles').strip()
-    if s.endswith('million'):
-        s.rstrip('million').strip()
+    for suffix in ('miles', 'mile', 'million'):
+        unit = f' {suffix}'
+        if s.endswith(unit):
+            s = s[:-len(unit)].strip()
+            break
     # remove parenthesis
     s = re.sub(r'\s*\([^)]*\)', '', s).strip()
     # remove quotes
