@@ -61,6 +61,14 @@ DATASETS_INFO = {
     },
 }
 
+INFERENCE_MODES = [
+    'uniform',
+    'uniform_plus',
+    'q_frame',
+    'wrap_around',
+    'wrap_around_plus',
+]
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description='RefVOS')
@@ -77,9 +85,11 @@ def parse_args():
         help='job launcher')
     parser.add_argument('--local_rank', '--local-rank', type=int, default=0)
     parser.add_argument('--submit', action='store_true')
-    parser.add_argument('--mode', type=str, default='default')
+    parser.add_argument(
+        '--mode', choices=INFERENCE_MODES, default='uniform')
     parser.add_argument('--print_answer', action='store_true', default=False)
-    parser.add_argument('--work_dir', type=str, default=None)
+    parser.add_argument(
+        '--work-dir', '--work_dir', dest='work_dir', type=str, default=None)
     parser.add_argument('--deepspeed', type=str, default=None) # dummy
     parser.add_argument('--samurai', action='store_true', default=False)
     
