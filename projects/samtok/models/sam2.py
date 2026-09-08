@@ -482,6 +482,7 @@ class PositionEmbeddingRandom(nn.Module):
         """Positionally encode points that are normalized to [0,1]."""
         # assuming coords are in [0, 1]^2 square and have d_1 x ... x d_n x 2 shape
         coords = 2 * coords - 1
+        coords = coords.to(self.positional_encoding_gaussian_matrix.dtype)
         coords = coords @ self.positional_encoding_gaussian_matrix
         coords = 2 * np.pi * coords
         # outputs d_1 x ... x d_n x C shape
@@ -3830,6 +3831,7 @@ class VQEmebedding(nn.Embedding):
         assert inputs_shape[-1] == embed_dim
 
         inputs_flat = inputs.reshape(-1, embed_dim).contiguous()
+        codebook_t = codebook_t.to(inputs_flat.dtype)
 
         inputs_norm_sq = inputs_flat.pow(2.).sum(dim=1, keepdim=True)
         codebook_t_norm_sq = codebook_t.pow(2.).sum(dim=0, keepdim=True)
@@ -4179,6 +4181,7 @@ class VQ_SAM2(PreTrainedModel):
             gt_masks = [F.interpolate(gt_mask.unsqueeze(0).to(pred_masks.dtype), size=pred_masks[0].shape[-2:], mode='nearest').squeeze(0) for gt_mask in gt_masks]
             gt_masks = torch.cat(gt_masks, dim=0)
             pred_masks = pred_masks.flatten(0, 1)
+            loss = quant_loss * self.config.vq_loss_weight
 
             if self.config.loss_sample_points:
                 sampled_pred_mask, sampled_gt_mask = self.sample_points(pred_masks, gt_masks)
