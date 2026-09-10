@@ -13,12 +13,19 @@ Pipeline
 
 Usage
 -----
-    # 1. Put OPENROUTER_API_KEY=sk-or-... in <project_root>/.env
-    # 2. Run:
+    # 1. Put OPENROUTER_API_KEY=sk-or-... in <project_root>/.env (or, if you
+    #    select --gateway orcarouter, put ORCAROUTER_API_KEY=sk-orca-... there).
+    # 2. Run (OpenRouter, the default gateway):
     PYTHONPATH=. uv run --extra latest python \\
         projects/vrt_sa2va/eval_openrouter/eval_openrouter.py \\
         --output_dir workspace/eval_results/openrouter_gemini_3.1_pro_full \\
         --model google/gemini-3.1-pro-preview --workers 8 --visualize
+    #    Run the same VER eval through the OrcaRouter gateway:
+    PYTHONPATH=. uv run --extra latest python \\
+        projects/vrt_sa2va/eval_openrouter/eval_openrouter.py \\
+        --gateway orcarouter --model openai/gpt-5.5 \\
+        --output_dir workspace/eval_results/orcarouter_gpt_5.5 \\
+        --workers 8 --visualize
 
 Concurrency
 -----------
@@ -56,6 +63,24 @@ from projects.vrt_sa2va.eval_openrouter.common import (
     print_summary,
     score_with_sam2,
 )
+
+
+# ───────────────────────── supported gateways ───────────────────────────
+
+# Each entry drives `--gateway`: the default base URL and the env var that
+# holds the API key. Both are overridable via `--base_url` / `--api_key_env`.
+GATEWAY_CONFIGS = {
+    "openrouter": {
+        "base_url": "https://openrouter.ai/api/v1",
+        "api_key_env": "OPENROUTER_API_KEY",
+        "label": "openrouter",
+    },
+    "orcarouter": {
+        "base_url": "https://api.orcarouter.ai/v1",
+        "api_key_env": "ORCAROUTER_API_KEY",
+        "label": "orcarouter",
+    },
+}
 
 
 # ───────────────────────── strict VER prompt ─────────────────────────────
@@ -146,11 +171,13 @@ class OpenRouterClient:
                  base_url: str = "https://openrouter.ai/api/v1",
                  referer: Optional[str] = None,
                  site_title: Optional[str] = None,
+                 label: str = "openrouter",
                  max_tokens: int = 4096,
                  temperature: float = 0.0,
                  timeout: float = 120.0):
         import openai
         self.model = model
+        self.label = label
         self.max_tokens = max_tokens
         self.temperature = temperature
         extra_headers = {}
@@ -185,23 +212,31 @@ class OpenRouterClient:
             except Exception as e:  # noqa: BLE001
                 last_err = e
                 wait = min(2 ** attempt, 30) + 0.5 * attempt
-                print(f"[openrouter] attempt {attempt + 1}/{max_retries} failed: {e!r} — sleeping {wait:.1f}s")
+                print(f"[{self.label}] attempt {attempt + 1}/{max_retries} failed: {e!r} — sleeping {wait:.1f}s")
                 time.sleep(wait)
-        print(f"[openrouter] giving up after {max_retries} attempts: {last_err!r}")
+        print(f"[{self.label}] giving up after {max_retries} attempts: {last_err!r}")
         return ""
 
 
 # ───────────────────────────── main ──────────────────────────────────────
 
 def parse_args():
-    p = argparse.ArgumentParser(description="Evaluate any vision LLM on VER via OpenRouter.")
+    p = argparse.ArgumentParser(
+        description="Evaluate any vision LLM on VER via OpenRouter or OrcaRouter.")
     p.add_argument("--packed_tfrecord",
                    default=os.path.join(PROJECT_ROOT, "data/VRT-Eval/vrt_eval.tfrecord"))
     p.add_argument("--env_file", default=os.path.join(PROJECT_ROOT, ".env"))
+    p.add_argument("--gateway", choices=list(GATEWAY_CONFIGS), default="openrouter",
+                   help="Gateway to run the eval through: openrouter (default) or orcarouter.")
     p.add_argument("--model", default="google/gemini-2.5-pro",
-                   help="OpenRouter model id (e.g. google/gemini-3.1-pro-preview, "
-                        "qwen/qwen3-vl-8b-instruct, openai/gpt-5.4).")
-    p.add_argument("--base_url", default="https://openrouter.ai/api/v1")
+                   help="Model id (e.g. google/gemini-3.1-pro-preview, "
+                        "qwen/qwen3-vl-8b-instruct, openai/gpt-5.4; with --gateway "
+                        "orcarouter use a namespaced OrcaRouter id such as openai/gpt-5.5).")
+    p.add_argument("--base_url", default=None,
+                   help="Gateway base URL (defaults to the selected gateway's URL).")
+    p.add_argument("--api_key_env", default=None,
+                   help="Env var holding the API key (defaults to the selected "
+                        "gateway's key env var, e.g. OPENROUTER_API_KEY / ORCAROUTER_API_KEY).")
     p.add_argument("--output_dir", default="work_dirs/openrouter_eval")
     p.add_argument("--max_samples", type=int, default=None)
     p.add_argument("--workers", type=int, default=1)
@@ -236,15 +271,20 @@ def main():
     args = parse_args()
     os.makedirs(args.output_dir, exist_ok=True)
 
+    gateway = GATEWAY_CONFIGS[args.gateway]
+    base_url = args.base_url or gateway["base_url"]
+    api_key_env = args.api_key_env or gateway["api_key_env"]
+    label = gateway["label"]
+
     if args.box_format is None:
         args.box_format = auto_box_format_for_model(args.model)
-    print(f"[cfg] model={args.model}  box_format={args.box_format}")
+    print(f"[cfg] gateway={args.gateway}  model={args.model}  box_format={args.box_format}")
 
     load_env_from_file(args.env_file)
-    api_key = os.environ.get("OPENROUTER_API_KEY")
+    api_key = os.environ.get(api_key_env)
     if not api_key:
         sys.exit(
-            f"[error] OPENROUTER_API_KEY not found. Add it to {args.env_file} "
+            f"[error] {api_key_env} not found. Add it to {args.env_file} "
             "or export it in the shell before running."
         )
 
@@ -275,8 +315,8 @@ def main():
     pending_keys = [k for k in keys if k not in done_keys]
 
     client = OpenRouterClient(
-        api_key=api_key, model=args.model, base_url=args.base_url,
-        referer=args.referer, site_title=args.site_title,
+        api_key=api_key, model=args.model, base_url=base_url,
+        referer=args.referer, site_title=args.site_title, label=label,
         max_tokens=args.max_tokens, temperature=args.temperature,
     )
 
@@ -300,7 +340,7 @@ def main():
             json.dump(results, f, indent=2)
 
     if args.workers <= 1:
-        for key in tqdm.tqdm(pending_keys, desc="openrouter"):
+        for key in tqdm.tqdm(pending_keys, desc=label):
             res = _predict(key)
             if res is not None:
                 results.append(res)
@@ -312,7 +352,7 @@ def main():
     else:
         with ThreadPoolExecutor(max_workers=args.workers) as pool:
             futures = {pool.submit(_predict, k): k for k in pending_keys}
-            for fut in tqdm.tqdm(as_completed(futures), total=len(futures), desc="openrouter"):
+            for fut in tqdm.tqdm(as_completed(futures), total=len(futures), desc=label):
                 res = fut.result()
                 if res is not None:
                     with write_lock:
@@ -320,7 +360,7 @@ def main():
                         if len(results) % 10 == 0:
                             _checkpoint()
     _checkpoint()
-    print(f"[openrouter] phase complete: {len(results)} records → {results_path}")
+    print(f"[{label}] phase complete: {len(results)} records → {results_path}")
 
     # ── Phase 2: SAM2 → mask IoU (sequential GPU) ────────────────────────
     if args.skip_sam2:
@@ -346,7 +386,8 @@ def main():
     summary = aggregate_metrics(results, model_label=args.model)
     summary.update({
         "model": args.model,
-        "base_url": args.base_url,
+        "gateway": args.gateway,
+        "base_url": base_url,
         "use_thinking": args.use_thinking,
         "box_format": args.box_format,
         "prompt_style": "strict",
