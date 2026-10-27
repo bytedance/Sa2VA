@@ -40,7 +40,15 @@ def get_bert_embedding(text):
 def compute_iou(mask1, mask2):
     intersection = np.logical_and(mask1, mask2)
     union = np.logical_or(mask1, mask2)
-    iou = np.sum(intersection) / np.sum(union)
+    union_area = np.sum(union)
+    if union_area == 0:
+        # Both masks are empty. Return 0.0 instead of evaluating 0 / 0, which
+        # yields NaN: a single NaN makes np.max() in compute_miou() return NaN
+        # (so the greedy loop stops before pairing anything and the whole image
+        # is reported with an mIoU of 0.0) and makes np.argmax() in
+        # find_best_matches() pick the NaN cell first.
+        return 0.0
+    iou = np.sum(intersection) / union_area
 
     return iou
 
