@@ -15,6 +15,11 @@
 
 The core unified model: SAM-2 + MLLM for referring segmentation, grounded conversation, visual prompting, and image/video chat. Supports InternVL2.5/3 and Qwen2.5-VL/Qwen3-VL backbones.
 
+[![Papers with Code: MeViS](https://paperswithcode.co/api/v1/papers/2501.04001/leaderboard-badge.svg?eval=17846&live=1)](https://paperswithcode.co/benchmark/mevis?task=referring-video-object-segmentation&eval=17846)
+[![Papers with Code: RefVOS-DAVIS](https://paperswithcode.co/api/v1/papers/2501.04001/leaderboard-badge.svg?eval=17847&live=1)](https://paperswithcode.co/benchmark/refvos-davis?task=video-segmentation&eval=17847)
+[![Papers with Code: Refer-YouTube-VOS (2021 public validation)](https://paperswithcode.co/api/v1/papers/2501.04001/leaderboard-badge.svg?eval=17849&live=1)](https://paperswithcode.co/benchmark/refer-youtube-vos-2021-public-validation?task=video-segmentation&eval=17849)
+[![Papers with Code: ReVOS](https://paperswithcode.co/api/v1/papers/2501.04001/leaderboard-badge.svg?eval=17848&live=1)](https://paperswithcode.co/benchmark/revos?task=video-segmentation&eval=17848)
+
 📂 [`projects/sa2va`](./projects/sa2va/README.md) · [📕 TPAMI](https://ieeexplore.ieee.org/document/11640960) · [📜 arXiv](https://arxiv.org/abs/2501.04001) · [🏠 Page](https://lxtgh.github.io/project/sa2va) · [🤗 Models](https://huggingface.co/collections/ByteDance/sa2va-model-zoo-677e3084d71b5f108d00e093)
 
 ### 🔍 [VRT](./projects/vrt_sa2va/README.md) — Visual Reasoning Tracer
